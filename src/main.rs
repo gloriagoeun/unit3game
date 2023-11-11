@@ -1,5 +1,4 @@
 use std::{borrow::Cow, mem, path::Path};
-use rand::Rng;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -9,6 +8,7 @@ mod input;
 mod gpu;
 mod sprites;
 use sprites::{GPUCamera, SpriteOption, GPUSprite};
+use std::time::Instant;
 
 
 #[cfg(all(not(feature = "uniforms"), not(feature = "vbuf")))]
@@ -24,11 +24,14 @@ compile_error!("Can't choose both vbuf and uniform sprite features");
 pub const  WINDOW_WIDTH: f32 = 1024.0;
 pub const  WINDOW_HEIGHT: f32 = 768.0;
 
-pub const NUMBER_OF_CELLS: i32 = 16;
+pub const NUMBER_OF_CELLS_H: i32 = 16;
+pub const NUMBER_OF_CELLS_W: i32 = 21;
 
 // here divide by a number to create the number of grids
-pub const CELL_WIDTH: f32 = WINDOW_WIDTH / NUMBER_OF_CELLS as f32;
-pub const CELL_HEIGHT: f32 = WINDOW_HEIGHT / NUMBER_OF_CELLS as f32;
+pub const CELL_WIDTH: f32 = WINDOW_WIDTH / NUMBER_OF_CELLS_W as f32;
+pub const CELL_HEIGHT: f32 = WINDOW_HEIGHT / NUMBER_OF_CELLS_H as f32;
+// how fast movable sprites move per sec 
+pub const SPEED: f32 = 0.5;
 
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
@@ -259,7 +262,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut sprites: Vec<GPUSprite> = sprites::create_sprites();
 
     // Initialize sprite position within the grid
-    let mut sprite_position: [f32; 2] = [512.0, 0.0];  
+    let mut sprite_position: [f32; 2] = [10.0 * CELL_WIDTH, 2.0 * CELL_HEIGHT];  
 
     const SPRITE_UNIFORM_SIZE: u64 = 512 * mem::size_of::<GPUSprite>() as u64;
     let buffer_sprite = gpu.device.create_buffer(&wgpu::BufferDescriptor {
@@ -332,11 +335,13 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut game_over = false; 
     let mut you_won = false;
     let mut show_end_screen = false;
+    let mut prev_t = Instant::now();
+    let mut collided_wall = false;
 
     let path_win = Path::new("content/youWin.png");
 
    //LOAD TEXTURE
-   let (tex_win, _win_image) = gpu.load_texture(path_win,None)
+    let (tex_win, _win_image) = gpu.load_texture(path_win,None)
         .await
         .expect("Couldn't load game over img");
     
@@ -363,20 +368,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         show_end_screen = true;
                     }
                 }
-
                 else if you_won {
-                    // enemy sprites fall!
-                    let mut enemies = sprites.len()-1;
-                    for i in 1..sprites.len(){
-                        sprites[i].screen_region[1] -= 5.0;
-                        if sprites[i].screen_region[1] < 0.0 {
-                            enemies -= 1;
-                        }
-                    }
-
-                    if enemies == 0 {
-                        show_end_screen = true;
-                    }
+                    show_end_screen = true;
                 }
 
                 else {
@@ -387,96 +380,65 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                                         (sprites[0].screen_region[0], sprites[0].screen_region[1]+ sprites[0].screen_region[3]),
                                                         (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1]+ sprites[0].screen_region[3])];
 
-    
-                // sprites moving horizontally
-                    // for i in 1..sprites.len(){
-                        
-                    //     if sprites[i].direction ==0{
-                    //         // If direction is 0, move right
-                    //         if sprites[i].screen_region[0] < WINDOW_WIDTH {
-                    //             sprites[i].screen_region[0] += 1.0;
-                    //         } else {
-                    //             sprites[i].screen_region[0] = 0.0;
-                    //         }
-                    //     } else {
-                    //         // If direction is 1, move left
-                    //         if sprites[i].screen_region[0] > 0.0 {
-                    //             sprites[i].screen_region[0] -= 1.0;
-                    //         } else {
-                    //             sprites[i].screen_region[0] = WINDOW_WIDTH;
-                    //         }
-                    //     }
 
                     let mut direction_switch_counter = 0;
                     let mut current_direction = 0; // Start with direction 0 (right)
+                    let elapsed = prev_t.elapsed().as_secs_f32();
 
+                    // MOVING
                     for i in 1..sprites.len() {
-                        if current_direction == 0 {
-                            // If direction is 0 (right), move right
-                            if sprites[i].screen_region[0] < WINDOW_WIDTH {
-                                sprites[i].screen_region[0] += 1.0;
-                            } else {
-                                sprites[i].screen_region[0] = 0.0;
-                            }
-                        } else {
-                            // If direction is 1 (left), move left
-                            if sprites[i].screen_region[0] > 0.0 {
-                                sprites[i].screen_region[0] -= 1.0;
-                            } else {
-                                sprites[i].screen_region[0] = WINDOW_WIDTH;
+
+                        if sprites[i].sheet_region[0] == 0.125 {
+                            if elapsed > SPEED {
+                                if sprites[i].screen_region[0] < WINDOW_WIDTH {
+                                    sprites[i].screen_region[0] += CELL_WIDTH;
+                                    prev_t = Instant::now();
+                                } else {
+                                    sprites[i].screen_region[0] = 0.0;
+                                }
                             }
                         }
 
                         direction_switch_counter += 1;
 
-                        if direction_switch_counter == 9 {
+                        if direction_switch_counter == 1 {
                             // Switch the direction after every 3 sprites
                             direction_switch_counter = 0;
                             current_direction = 1 - current_direction; // Toggle between 0 and 1
                         }
                     }
 
+                    //COLLISION LOGIC for with the stationary wall 
+                    for i in 1..70 {
+                        if i != 55 && i !=56 && i != 57 {
+                            for (cx, cy) in corners.iter(){
+                                if cx >= &sprites[i].screen_region[0] 
+                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
+                                && cy >= &sprites[i].screen_region[1] 
+                                && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
+                                    print!("WALL");
+                                    collided_wall = true;
 
-                        // if even move right
-                        // if i%2==0{
-                        //     if sprites[i].screen_region[0] < WINDOW_WIDTH{
-                        //         sprites[i].screen_region[0] += 5.0;
-                        //     }else{
-                        //         let num = rand::thread_rng().gen_range(1..10); 
-                        //         sprites[i].screen_region[0] = 0.0;
-                        //         sprites[i].screen_region[1] =  num as f32 * CELL_HEIGHT;
-                        //     }
-                        // } else { // odd move left
-                        //     if sprites[i].screen_region[0] > 0.0{
-                        //         sprites[i].screen_region[0] -= 5.0;
-                        //     } else {
-                        //         let num = rand::thread_rng().gen_range(1..10); 
-                        //         sprites[i].screen_region[0] = WINDOW_WIDTH;
-                        //         sprites[i].screen_region[1] =  num as f32 * CELL_HEIGHT;
-                        //     }
-                        // }
-                        
-                    // }
-
-                    for i in 1..sprites.len() {
-                        for (cx, cy) in corners.iter(){
-                            if cx >= &sprites[i].screen_region[0] && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) && cy >= &sprites[i].screen_region[1] && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
-                                print!("COLLIDED");
-                                game_over = true;  
+                                    if i == 100{
+                                        game_over = true; 
+                                    }
+                                }
                             }
                         }
                     }
                     
                     // move sprite based on input
-                    sprite_position = sprites::move_sprite_input(&input, sprite_position);
+                    sprite_position = sprites::move_sprite_input(&input, sprite_position, collided_wall);
+                    
 
-                    if sprite_position[1] + CELL_HEIGHT >= WINDOW_HEIGHT {
+                    // WINNING CONDITION: GOT TO THE DOOR 
+                    if sprite_position[0] == 6.0 * CELL_WIDTH && sprite_position[1] == WINDOW_HEIGHT - CELL_HEIGHT {
                         you_won = true;
                     }
 
-                    //update sprite position
+                    //update sprite position            
                     sprites[0].screen_region[0] = sprite_position[0];
-                    sprites[0].screen_region[1] = sprite_position[1];
+                    sprites[0].screen_region[1] = sprite_position[1];  
                 }
                 
                 // Then send the data to the GPU!
