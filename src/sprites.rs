@@ -94,6 +94,22 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                 sheet_region: [0.125, 0.625, 0.25, 0.25], // star
             });
 
+            for i in 1..4 {
+                let mut temp_y = num_y * CELL_HEIGHT;
+                if i == 1 {
+                    temp_y += CELL_HEIGHT;
+                }
+                if i == 2 {
+                    temp_y += CELL_HEIGHT + CELL_HEIGHT;
+                }
+                if i == 3 {
+                    temp_y += CELL_HEIGHT + CELL_HEIGHT + CELL_HEIGHT;
+                }
+                sprites.push(GPUSprite {
+                    screen_region: [num_x * CELL_WIDTH, temp_y, 50.0, 50.0],
+                    sheet_region: [0.625, 0.125, 0.25, 0.25], // star
+                });
+            }
             /*
             // BOMBS
             sprites.push(GPUSprite {
