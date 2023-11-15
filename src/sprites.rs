@@ -80,6 +80,8 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                 sheet_region: [0.5625, 0.6, 0.375, 0.25], 
             });
         }
+
+
     }
 
     // creating ENEMIES

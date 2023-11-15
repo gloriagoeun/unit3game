@@ -337,6 +337,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut show_end_screen = false;
     let mut prev_t = Instant::now();
     let mut collided_wall = false;
+    let mut right = true;
 
     let path_win = Path::new("content/youWin.png");
 
@@ -383,29 +384,42 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     let elapsed = prev_t.elapsed().as_secs_f32();
 
                     // MOVING
-                    for i in 1..sprites.len() {
-                        // if enemy
+                    for i in 1..sprites.len()  {
                         if sprites[i].sheet_region[0] == 0.125 {
-                            if elapsed > SPEED {
-                                if sprites[i].screen_region[0] < WINDOW_WIDTH {
+                            if elapsed > SPEED { 
+                                if right {
+                                    sprites[i].screen_region[0] += 2.0 * CELL_WIDTH;
+                                    prev_t = Instant::now();
+                                }
+                                else {
+                                    sprites[i].screen_region[0] -= 2.0 * CELL_WIDTH;
+                                    prev_t = Instant::now();
+                                }
+
+                                right = !right;
+
+                                /*
+                                if sprites[i].screen_region[0] < WINDOW_WIDTH - CELL_WIDTH{
                                     sprites[i].screen_region[0] += CELL_WIDTH;
                                     prev_t = Instant::now();
                                 } else {
                                     sprites[i].screen_region[0] = 0.0;
                                 }
+                                */
                             }
                         }
                     }
+                    
 
                     //COLLISION LOGIC for with the stationary wall 
-                    for i in 1..70 {
+                    for i in 1..sprites.len()  {
                         if i != 55 && i !=56 && i != 57 {
                             for (cx, cy) in corners.iter(){
                                 if cx >= &sprites[i].screen_region[0] 
                                 && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
                                 && cy >= &sprites[i].screen_region[1] 
                                 && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
-                                    print!("WALL");
+                                    print!("COLLIDED");
                                     collided_wall = true;
 
                                     if i == 100{
