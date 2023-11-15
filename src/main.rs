@@ -373,7 +373,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 }
 
                 else {
-
                     // collision sprites
                     let corners = vec![(sprites[0].screen_region[0], sprites[0].screen_region[1]), 
                                                         (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1]),
@@ -381,13 +380,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                                         (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1]+ sprites[0].screen_region[3])];
 
 
-                    let mut direction_switch_counter = 0;
-                    let mut current_direction = 0; // Start with direction 0 (right)
                     let elapsed = prev_t.elapsed().as_secs_f32();
 
                     // MOVING
                     for i in 1..sprites.len() {
-
+                        // if enemy
                         if sprites[i].sheet_region[0] == 0.125 {
                             if elapsed > SPEED {
                                 if sprites[i].screen_region[0] < WINDOW_WIDTH {
@@ -397,14 +394,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                     sprites[i].screen_region[0] = 0.0;
                                 }
                             }
-                        }
-
-                        direction_switch_counter += 1;
-
-                        if direction_switch_counter == 1 {
-                            // Switch the direction after every 3 sprites
-                            direction_switch_counter = 0;
-                            current_direction = 1 - current_direction; // Toggle between 0 and 1
                         }
                     }
 
@@ -432,7 +421,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     
 
                     // WINNING CONDITION: GOT TO THE DOOR 
-                    if sprite_position[0] == 6.0 * CELL_WIDTH && sprite_position[1] == WINDOW_HEIGHT - CELL_HEIGHT {
+                    if sprite_position[1] == WINDOW_HEIGHT - CELL_HEIGHT{
                         you_won = true;
                     }
 

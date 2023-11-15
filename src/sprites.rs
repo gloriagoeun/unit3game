@@ -24,6 +24,9 @@ pub enum SpriteOption {
     VertexBuffer,
 }
 
+//value to not hard code the door placement
+pub const door_xvalue: i32 = NUMBER_OF_CELLS_W/3; 
+
 pub fn create_sprites() ->  Vec<GPUSprite> {
     // sheet region: left x, top y,  width, height
     let mut sprites: Vec<GPUSprite> = vec![GPUSprite {
@@ -46,21 +49,19 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
         }
         // top of the wall & door
         else if y == (NUMBER_OF_CELLS_H - 1) {
-            for x in 0..6 {
+            for x in 0..door_xvalue {
                 sprites.push(GPUSprite {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
                     sheet_region: [0.5625, 0.6, 0.375, 0.25], 
                 });
-            }
-            //DOOR
-            for x in 6..7 {
+            } //DOOR 
+            for x in door_xvalue..door_xvalue + 1 {
                 sprites.push(GPUSprite {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
                     sheet_region: [0.625, 0.125, 0.25, 0.25], // bomb
                 });
                 print!("{:#?}", sprites.len());
-            }
-            for x in 7..NUMBER_OF_CELLS_W {
+            } for x in door_xvalue+1..NUMBER_OF_CELLS_W {
                 sprites.push(GPUSprite {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
                     sheet_region: [0.5625, 0.6, 0.375, 0.25], 
@@ -73,7 +74,6 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                 screen_region: [0 as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
                 sheet_region: [0.5625, 0.6, 0.375, 0.25], 
             });
-
             //right side of the wall 
             sprites.push(GPUSprite {
                 screen_region: [(NUMBER_OF_CELLS_W - 1) as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
@@ -82,13 +82,15 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
         }
     }
 
-    for y in (2..NUMBER_OF_CELLS_H-1).step_by(1) {
+    // creating ENEMIES
+    for y in 0..7 {
         // Create a horizontal line of stars, asteroids, and bombs
-            let y_value = y as f32 * CELL_HEIGHT;
+            let num_x= rand::thread_rng().gen_range(1..NUMBER_OF_CELLS_W) as f32; 
+            let num_y= rand::thread_rng().gen_range(1..NUMBER_OF_CELLS_H) as f32; 
 
             //star == associate
             sprites.push(GPUSprite {
-                screen_region: [1.0 as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
+                screen_region: [num_x * CELL_WIDTH, num_y * CELL_HEIGHT, 50.0, 50.0],
                 sheet_region: [0.125, 0.625, 0.25, 0.25], // star
             });
 
@@ -107,44 +109,35 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
 pub fn move_sprite_input(input: &Input, mut sprite_position: [f32; 2], collided_wall: bool) -> [f32; 2] {
         // Update sprite position based on keyboard input
         if input.is_key_pressed(winit::event::VirtualKeyCode::Up) {
-            if !collided_wall {
+            if sprite_position[1] + 2.0 * CELL_HEIGHT >= WINDOW_HEIGHT && sprite_position[0] == door_xvalue as f32 * CELL_WIDTH {
                 sprite_position[1] += CELL_HEIGHT;
             }
             else if collided_wall && sprite_position[1] + 2.0 * CELL_HEIGHT >= WINDOW_HEIGHT {
                 sprite_position[1] = WINDOW_HEIGHT - 2.0 * CELL_HEIGHT;
             } else {
-                print!("{:#?}", collided_wall);
                 sprite_position[1] += CELL_HEIGHT;
             }
-            
-            /*
-            if sprite_position[1] + 2.0 * CELL_HEIGHT < WINDOW_HEIGHT  {
-                sprite_position[1] += CELL_HEIGHT;
-            } else {
-                sprite_position[1] = WINDOW_HEIGHT - CELL_HEIGHT;
-            }
-            */
         }
         
         if input.is_key_pressed(winit::event::VirtualKeyCode::Down) {
+            if collided_wall && sprite_position[1] - CELL_HEIGHT <= 0.0 {
+                sprite_position[1] = CELL_HEIGHT;
+            } else {
             sprite_position[1] -= CELL_HEIGHT;
-
-            if sprite_position[1] < 0.0 {
-                sprite_position[1] = 0.0;
             }
         }
         if input.is_key_pressed(winit::event::VirtualKeyCode::Left) {
+            if collided_wall && sprite_position[0] - 1.5 * CELL_WIDTH <= 0.0 {
+                sprite_position[0] = CELL_WIDTH;
+            } else {
             sprite_position[0] -= CELL_WIDTH;
-
-            if sprite_position[0] < 0.0 {
-                sprite_position[0] = 0.0;
             }
         }
         if input.is_key_pressed(winit::event::VirtualKeyCode::Right) {
-            if sprite_position[0] + CELL_WIDTH < WINDOW_WIDTH {
-                sprite_position[0] += CELL_WIDTH;
+            if collided_wall && sprite_position[0] + 2.0 * CELL_WIDTH >= WINDOW_WIDTH {
+                sprite_position[0] = WINDOW_WIDTH - 2.0 * CELL_WIDTH;
             } else {
-                sprite_position[0] = WINDOW_WIDTH - CELL_WIDTH;
+                sprite_position[0] += CELL_WIDTH;
             }
         }  
         sprite_position
