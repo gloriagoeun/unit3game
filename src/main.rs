@@ -385,7 +385,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
                     // MOVING
                     for i in 1..sprites.len()  {
-                        if sprites[i].sheet_region[0] == 0.125 {
+                        if sprites[i].sheet_region[0] == 0.54545454545454545454 {
                             if elapsed > SPEED { 
                                 if right {
                                     sprites[i].screen_region[0] += 2.0 * CELL_WIDTH;

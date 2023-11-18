@@ -28,22 +28,20 @@ pub enum SpriteOption {
 pub const door_xvalue: i32 = NUMBER_OF_CELLS_W/3; 
 
 pub fn create_sprites() ->  Vec<GPUSprite> {
-    // sheet region: left x, top y,  width, height
+    // CUSTOMER (AKA PLAYER)
     let mut sprites: Vec<GPUSprite> = vec![GPUSprite {
-        screen_region: [WINDOW_WIDTH/2.0, 32.0, 50.0, 50.0],
-        sheet_region: [0.0625, 0.0625, 0.3125, 0.375], // duck
+        screen_region: [WINDOW_WIDTH/2.0, 32.0, 50.0, 100.0],
+        sheet_region: [384.0/1408.0, 0.0, 64.0/1408.0, 128.0/320.0], // duck
     }];
 
-    //WALLS: sprite[0] to sprite[70]!!
+    //WALLS: sprite[0] to sprite[70]!! (sprite = shelf1)
     for y in 0..NUMBER_OF_CELLS_H {
         let y_value = y as f32 * CELL_HEIGHT;
-        // ASTEROIDS == wall
-        // bottom on the wall 
         if y == 0 {
             for x in 0..NUMBER_OF_CELLS_W {
                 sprites.push(GPUSprite {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
-                    sheet_region: [0.5625, 0.6, 0.375, 0.25], 
+                    sheet_region: [1088.0/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], 
                 });
             }
         }
@@ -52,19 +50,19 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             for x in 0..door_xvalue {
                 sprites.push(GPUSprite {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
-                    sheet_region: [0.5625, 0.6, 0.375, 0.25], 
+                    sheet_region: [1088.0/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], 
                 });
-            } //DOOR 
+            } // empty door
             for x in door_xvalue..door_xvalue + 1 {
                 sprites.push(GPUSprite {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
-                    sheet_region: [0.625, 0.125, 0.25, 0.25], // bomb
+                    sheet_region: [0.0, 128.0/320.0, 64.0/1408.0, 0.2], // bomb
                 });
                 print!("{:#?}", sprites.len());
             } for x in door_xvalue+1..NUMBER_OF_CELLS_W {
                 sprites.push(GPUSprite {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
-                    sheet_region: [0.5625, 0.6, 0.375, 0.25], 
+                    sheet_region:  [1088.0/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], 
                 });
             }
         }
@@ -72,19 +70,133 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
         else {
             sprites.push(GPUSprite {
                 screen_region: [0 as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
-                sheet_region: [0.5625, 0.6, 0.375, 0.25], 
+                sheet_region:  [1088.0/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], 
             });
             //right side of the wall 
             sprites.push(GPUSprite {
                 screen_region: [(NUMBER_OF_CELLS_W - 1) as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
-                sheet_region: [0.5625, 0.6, 0.375, 0.25], 
+                sheet_region:  [1088.0/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], 
             });
         }
-
-
     }
 
-    // creating ENEMIES
+    let even_x= 4.0;let odd_x= 4.0;
+    
+    let even_y= 9.0; let odd_y= 4.0;
+
+    let mut coord1 = 0.0; let mut coord2 = 0.0; let mut coord3 = 0.0; let mut coord4 = 0.0;
+    //AISLES: (sprite = shelf4)
+    for x in 0..4 {
+        if x % 2 == 0 { 
+            if x == 0 {
+                coord1 = 0.0; coord2 = 64.0; coord3 = 256.0; coord4 = 320.0;
+            } else {
+                coord1 = 448.0; coord2 = 512.0; coord3 = 640.0; coord4 = 704.0;
+            }
+            
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, even_y * CELL_HEIGHT, 50.0, 200.0],
+                sheet_region: [1280.0/1408.0, 0.0, 64.0/1408.0, 256.0/320.0], // star
+            });
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, even_y * CELL_HEIGHT, 50.0, 50.0],
+                sheet_region: [coord1/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], // star
+            });
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, (even_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
+                sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+            });
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, (even_y + 2.0) * CELL_HEIGHT, 50.0, 50.0],
+                sheet_region: [coord3/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], // star
+            });
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, (even_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
+                sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+            });
+        } else { 
+            if x == 1 {
+                coord1 = 128.0; coord2 = 192.0; coord3 = 960.0; coord4 = 1024.0;
+            } else {
+                coord1 = 832.0; coord2 = 896.0; coord3 = 0.0; coord4 = 64.0;
+            }
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, odd_y * CELL_HEIGHT, 50.0, 200.0],
+                sheet_region: [1280.0/1408.0, 0.0, 64.0/1408.0, 256.0/320.0], // star
+            });
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, odd_y * CELL_HEIGHT, 50.0, 50.0],
+                sheet_region:  [coord1/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], // star
+            });
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, (odd_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
+                sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+            });
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, (odd_y + 2.0) * CELL_HEIGHT, 50.0, 50.0],
+                sheet_region: [coord3/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], // star
+            });
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, (odd_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
+                sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+            });
+        }
+    }
+
+    // FOOD
+    for y in 0..7 {
+        // Create a horizontal line of stars, asteroids, and bombs
+        let num_x= rand::thread_rng().gen_range(1..NUMBER_OF_CELLS_W) as f32; 
+        let num_y= rand::thread_rng().gen_range(1..NUMBER_OF_CELLS_H) as f32; 
+
+        //star == associate
+        sprites.push(GPUSprite {
+            screen_region: [num_x * CELL_WIDTH, num_y * CELL_HEIGHT, 40.0, 40.0],
+            sheet_region:   [1024.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+        });
+    }
+
+    // GROCERY LIST
+    sprites.push(GPUSprite {
+        screen_region: [1.0 * CELL_WIDTH, 1.0 * CELL_HEIGHT, 80.0, 320.0],
+        sheet_region: [960.0/1408.0, 64.0/320.0, 64.0/1408.0, 120.0/320.0], // star
+    }); // banana
+    sprites.push(GPUSprite {
+        screen_region: [1.6 * CELL_WIDTH, 1.0 * CELL_HEIGHT, 30.0, 30.0],
+        sheet_region: [64.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+    }); //bread
+    sprites.push(GPUSprite {
+        screen_region: [1.6 * CELL_WIDTH, 1.8 * CELL_HEIGHT, 30.0, 30.0],
+        sheet_region: [192.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+    });//carrot
+    sprites.push(GPUSprite {
+        screen_region: [1.6 * CELL_WIDTH, 2.6 * CELL_HEIGHT, 30.0, 30.0],
+        sheet_region: [320.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+    }); //salad
+    sprites.push(GPUSprite {
+        screen_region: [1.6 * CELL_WIDTH, 3.4 * CELL_HEIGHT, 30.0, 30.0],
+        sheet_region: [1024.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+    }); //cereal
+    sprites.push(GPUSprite {
+        screen_region: [1.6 * CELL_WIDTH, 4.2 * CELL_HEIGHT, 30.0, 30.0],
+        sheet_region: [512.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+    });//ketchup
+    sprites.push(GPUSprite {
+        screen_region: [1.6 * CELL_WIDTH, 5.0 * CELL_HEIGHT, 30.0, 30.0],
+        sheet_region: [704.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+    }); //potato chip
+    sprites.push(GPUSprite {
+        screen_region: [1.6 * CELL_WIDTH, 5.8 * CELL_HEIGHT, 30.0, 30.0],
+        sheet_region: [896.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+    });
+
+    // CASHIER 
+    sprites.push(GPUSprite {
+        screen_region: [18.0 * CELL_WIDTH, 10.0 * CELL_HEIGHT, 64.0, 128.0],
+        sheet_region: [576.0/1408.0, 0.0, 64.0/1408.0, 128.0/320.0], // star
+    });
+
+    // creating enemy ASSOCIATES
     for y in 0..7 {
         // Create a horizontal line of stars, asteroids, and bombs
             let num_x= rand::thread_rng().gen_range(1..NUMBER_OF_CELLS_W) as f32; 
@@ -92,33 +204,9 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
 
             //star == associate
             sprites.push(GPUSprite {
-                screen_region: [num_x * CELL_WIDTH, num_y * CELL_HEIGHT, 50.0, 50.0],
-                sheet_region: [0.125, 0.625, 0.25, 0.25], // star
+                screen_region: [num_x * CELL_WIDTH, num_y * CELL_HEIGHT, 40.0, 40.0],
+                sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], // star
             });
-
-            for i in 1..4 {
-                let mut temp_y = num_y * CELL_HEIGHT;
-                if i == 1 {
-                    temp_y += CELL_HEIGHT;
-                }
-                if i == 2 {
-                    temp_y += CELL_HEIGHT + CELL_HEIGHT;
-                }
-                if i == 3 {
-                    temp_y += CELL_HEIGHT + CELL_HEIGHT + CELL_HEIGHT;
-                }
-                sprites.push(GPUSprite {
-                    screen_region: [num_x * CELL_WIDTH, temp_y, 50.0, 50.0],
-                    sheet_region: [0.625, 0.125, 0.25, 0.25], // star
-                });
-            }
-            /*
-            // BOMBS
-            sprites.push(GPUSprite {
-                screen_region: [11 as f32 * CELL_WIDTH, y_value, 45.0, 45.0],
-                sheet_region: [0.625, 0.125, 0.25, 0.25], // bomb
-            });
-            */
     }
     sprites
 
