@@ -388,11 +388,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         if sprites[i].sheet_region[0] == 0.54545454545454545454 {
                             if elapsed > SPEED { 
                                 if right {
-                                    sprites[i].screen_region[0] += 2.0 * CELL_WIDTH;
+                                    sprites[i].screen_region[0] += 1.0 * CELL_WIDTH;
                                     prev_t = Instant::now();
                                 }
                                 else {
-                                    sprites[i].screen_region[0] -= 2.0 * CELL_WIDTH;
+                                    sprites[i].screen_region[0] -= 1.0 * CELL_WIDTH;
                                     prev_t = Instant::now();
                                 }
 

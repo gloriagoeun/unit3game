@@ -81,18 +81,20 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
     }
 
     let even_x= 4.0;let odd_x= 4.0;
-    
     let even_y= 9.0; let odd_y= 4.0;
 
     let mut coord1 = 0.0; let mut coord2 = 0.0; let mut coord3 = 0.0; let mut coord4 = 0.0;
-    //AISLES: (sprite = shelf4)
+    //AISLES: (sprite = shelf4) & FOOD 
     for x in 0..4 {
+        let num_a= rand::thread_rng().gen_range(1..3) as f32;
+        let num_b= rand::thread_rng().gen_range(1..3) as f32;
+        
         if x % 2 == 0 { 
             if x == 0 {
                 coord1 = 0.0; coord2 = 64.0; coord3 = 256.0; coord4 = 320.0;
             } else {
                 coord1 = 448.0; coord2 = 512.0; coord3 = 640.0; coord4 = 704.0;
-            }
+            }  
             
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, even_y * CELL_HEIGHT, 50.0, 200.0],
@@ -105,6 +107,10 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, (even_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
                 sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+            }); //FOOD
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + (even_x - num_a)* CELL_WIDTH, (even_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
+                sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
             });
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, (even_y + 2.0) * CELL_HEIGHT, 50.0, 50.0],
@@ -112,6 +118,10 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             });
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, (even_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
+                sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+            }); //FOOD
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + (even_x + num_b) * CELL_WIDTH, (even_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
                 sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
             });
         } else { 
@@ -131,6 +141,10 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, (odd_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
                 sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+            }); //FOOD
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + (odd_x - num_a)* CELL_WIDTH, (odd_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
+                sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
             });
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, (odd_y + 2.0) * CELL_HEIGHT, 50.0, 50.0],
@@ -139,21 +153,12 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, (odd_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
                 sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+            }); //FOOD
+            sprites.push(GPUSprite {
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + (odd_x + num_b) * CELL_WIDTH, (odd_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
+                sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
             });
         }
-    }
-
-    // FOOD
-    for y in 0..7 {
-        // Create a horizontal line of stars, asteroids, and bombs
-        let num_x= rand::thread_rng().gen_range(1..NUMBER_OF_CELLS_W) as f32; 
-        let num_y= rand::thread_rng().gen_range(1..NUMBER_OF_CELLS_H) as f32; 
-
-        //star == associate
-        sprites.push(GPUSprite {
-            screen_region: [num_x * CELL_WIDTH, num_y * CELL_HEIGHT, 40.0, 40.0],
-            sheet_region:   [1024.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-        });
     }
 
     // GROCERY LIST
@@ -197,7 +202,15 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
     });
 
     // creating enemy ASSOCIATES
-    for y in 0..7 {
+    sprites.push(GPUSprite {
+        screen_region: [6.0 * CELL_WIDTH, 14.0 * CELL_HEIGHT, 40.0, 40.0],
+        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], // star
+    });
+    sprites.push(GPUSprite {
+        screen_region: [3.0 * CELL_WIDTH, 10.0 * CELL_HEIGHT, 40.0, 40.0],
+        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], // star
+    });
+    for y in 0..3 {
         // Create a horizontal line of stars, asteroids, and bombs
             let num_x= rand::thread_rng().gen_range(1..NUMBER_OF_CELLS_W) as f32; 
             let num_y= rand::thread_rng().gen_range(1..NUMBER_OF_CELLS_H) as f32; 
