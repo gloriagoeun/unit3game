@@ -412,8 +412,9 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     
 
                     //COLLISION LOGIC for with the stationary wall 
-                    for i in 1..sprites.len()  {
-                        if i != 55 && i !=56 && i != 57 {
+                    for i in 1..sprites.len() {
+                        // if collided with the food items! (sprite[74], sprite[81], sprite[88], sprite[95])
+                        if i == 74 || i== 77 || i == 81 || i == 84 || i == 88 || i == 91 || i == 95 {
                             for (cx, cy) in corners.iter(){
                                 if cx >= &sprites[i].screen_region[0] 
                                 && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
@@ -421,13 +422,24 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                 && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
                                     print!("COLLIDED");
                                     collided_wall = true;
-
-                                    if i == 100{
-                                        game_over = true; 
-                                    }
-                                }
+                                    
+                                    //bananas
+                                    if i == 74 { sprites[99].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[74].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    //carrots
+                                    if i == 77 { sprites[101].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[77].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    //cereal 
+                                    if i == 88 { sprites[103].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[88].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    //ketchup
+                                    if i == 91 { sprites[104].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[91].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    //bread 
+                                    if i == 81 { sprites[100].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[81].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    //salad
+                                    if i == 84 { sprites[102].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[84].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    //potato chips
+                                    if i == 95 { sprites[105].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[95].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                }   
                             }
-                        }
+                        } 
                     }
                     
                     // move sprite based on input

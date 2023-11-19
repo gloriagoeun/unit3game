@@ -112,6 +112,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + (even_x - num_a)* CELL_WIDTH, (even_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
                 sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
             });
+            print!("FOOD: {:#?}", sprites.len());
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, (even_y + 2.0) * CELL_HEIGHT, 50.0, 50.0],
                 sheet_region: [coord3/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], // star
@@ -124,6 +125,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + (even_x + num_b) * CELL_WIDTH, (even_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
                 sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
             });
+            print!("FOOD: {:#?}", sprites.len());
         } else { 
             if x == 1 {
                 coord1 = 128.0; coord2 = 192.0; coord3 = 960.0; coord4 = 1024.0;
@@ -141,11 +143,12 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, (odd_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
                 sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-            }); //FOOD
+            }); 
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + (odd_x - num_a)* CELL_WIDTH, (odd_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
                 sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
             });
+            print!("FOOD: {:#?}", sprites.len());
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, (odd_y + 2.0) * CELL_HEIGHT, 50.0, 50.0],
                 sheet_region: [coord3/1408.0, 0.0, 64.0/1408.0, 64.0/320.0], // star
@@ -153,11 +156,14 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             sprites.push(GPUSprite {
                 screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, (odd_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
                 sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-            }); //FOOD
-            sprites.push(GPUSprite {
-                screen_region: [4.0 * x as f32 * CELL_WIDTH + (odd_x + num_b) * CELL_WIDTH, (odd_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
-                sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-            });
+            }); 
+            if x == 1 {
+                sprites.push(GPUSprite {
+                    screen_region: [4.0 * x as f32 * CELL_WIDTH + (odd_x + num_b) * CELL_WIDTH, (odd_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
+                    sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
+                });
+            }
+            print!("FOOD: {:#?}", sprites.len());
         }
     }
 
@@ -165,31 +171,32 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
     sprites.push(GPUSprite {
         screen_region: [1.0 * CELL_WIDTH, 1.0 * CELL_HEIGHT, 80.0, 320.0],
         sheet_region: [960.0/1408.0, 64.0/320.0, 64.0/1408.0, 120.0/320.0], // star
-    }); // banana
+    }); // banana -  99
+    print!("LIST: {:#?}", sprites.len());
     sprites.push(GPUSprite {
         screen_region: [1.6 * CELL_WIDTH, 1.0 * CELL_HEIGHT, 30.0, 30.0],
         sheet_region: [64.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-    }); //bread
+    }); //bread - 100
     sprites.push(GPUSprite {
         screen_region: [1.6 * CELL_WIDTH, 1.8 * CELL_HEIGHT, 30.0, 30.0],
         sheet_region: [192.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-    });//carrot
+    });//carrot - 101
     sprites.push(GPUSprite {
         screen_region: [1.6 * CELL_WIDTH, 2.6 * CELL_HEIGHT, 30.0, 30.0],
         sheet_region: [320.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-    }); //salad
+    }); //salad - 102
     sprites.push(GPUSprite {
         screen_region: [1.6 * CELL_WIDTH, 3.4 * CELL_HEIGHT, 30.0, 30.0],
         sheet_region: [1024.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-    }); //cereal
+    }); //cereal - 103
     sprites.push(GPUSprite {
         screen_region: [1.6 * CELL_WIDTH, 4.2 * CELL_HEIGHT, 30.0, 30.0],
         sheet_region: [512.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-    });//ketchup
+    });//ketchup - 104
     sprites.push(GPUSprite {
         screen_region: [1.6 * CELL_WIDTH, 5.0 * CELL_HEIGHT, 30.0, 30.0],
         sheet_region: [704.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
-    }); //potato chip
+    }); //potato chip - 105
     sprites.push(GPUSprite {
         screen_region: [1.6 * CELL_WIDTH, 5.8 * CELL_HEIGHT, 30.0, 30.0],
         sheet_region: [896.0/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], // star
