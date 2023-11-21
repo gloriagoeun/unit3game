@@ -312,7 +312,33 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     let view_bgnd = tex_bgnd.create_view(&wgpu::TextureViewDescriptor::default());
     let sampler_bgnd = gpu.device.create_sampler(&wgpu::SamplerDescriptor::default());
+    
+    // create title
+    let path_title = Path::new("content/screen-page.png");
+    let (tex_title, _over_image) = gpu.load_texture(path_title,None)
+        .await
+        .expect("Couldn't load space img");
+
+    let view_title = tex_title.create_view(&wgpu::TextureViewDescriptor::default());
+    let sampler_title = gpu.device.create_sampler(&wgpu::SamplerDescriptor::default());
         
+    // set first background to instructions
+    let mut texture_bind_group_bgnd2 = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: None,
+        layout: &texture_bind_group_layout,
+        entries: &[
+            // One for the texture, one for the sampler
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(&view_title),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(&sampler_title),
+            },
+        ],
+    });
+
     let mut texture_bind_group_bgnd = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
         label: None,
         layout: &texture_bind_group_layout,
@@ -332,6 +358,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     gpu.queue.write_buffer(&buffer_camera, 0, bytemuck::bytes_of(&camera));
     gpu.queue.write_buffer(&buffer_sprite, 0, bytemuck::cast_slice(&sprites));
     let mut input = input::Input::default();
+    let mut show_instructions = true;
     let mut game_over = false; 
     let mut you_won = false;
     let mut show_end_screen = false;
@@ -467,20 +494,18 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                 if cx >= &sprites[i].screen_region[0] 
                                 && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
                                 && cy >= &sprites[i].screen_region[1] 
-                                && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
+                                && cy <= &(sprites[i].screen_region[1] + 0.5 * sprites[0].screen_region[3]) {
                                     game_over = true;
                                 }
                             }
                         }
 
-                        // if collided with the food items! (sprite[74], sprite[81], sprite[88], sprite[95])
+                        // if put food item in basket, CHECK it off! (sprite[74], sprite[81], sprite[88], sprite[95])
                         if i == 74 || i== 77 || i == 81 || i == 84 || i == 88 || i == 91 || i == 95 {
                             for (cx, cy, c) in corners.iter(){
-                                if cx >= &sprites[i].screen_region[0] 
-                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
-                                && cy >= &sprites[i].screen_region[1] 
-                                && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
-                                    print!("ITEM");
+                                if sprites[i].screen_region[0].floor() == sprites[0].screen_region[0].floor() 
+                                && sprites[i].screen_region[1].floor() == (sprites[0].screen_region[1] + CELL_HEIGHT).floor() {
+                                    print!("ITEM!");
                                     
                                     //bananas
                                     if i == 74 { sprites[99].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[74].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
@@ -507,6 +532,10 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     
                     // move sprite based on input
                     sprite_position = sprites::move_sprite_input(&input, sprite_position, collided_wall, at_door, aisle_left, aisle_right, aisle_top, aisle_bottom);
+                    if input.is_key_pressed(winit::event::VirtualKeyCode::Space) {
+                        show_instructions = false;
+                    }
+                    
                     aisle_left = false;
                     aisle_right = false;
                     aisle_top = false;
@@ -550,7 +579,13 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         })],
                         depth_stencil_attachment: None,
                     });
-                    if show_end_screen{
+                    if show_instructions {
+                        // draw instructions
+                        rpass.set_pipeline(&render_pipeline_full);
+                        rpass.set_bind_group(0, &texture_bind_group_bgnd2, &[]);
+                        rpass.draw(0..6, 0..1);
+                    }
+                    else if show_end_screen{
                         let tex_end = 
                         if game_over {
                             &tex_over
@@ -593,10 +628,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             }
                             rpass.set_bind_group(0, &sprite_bind_group, &[]);
                             rpass.set_bind_group(1, &texture_bind_group, &[]);
-                            // draw two triangles per sprite, and sprites-many sprites.
-                            // this uses instanced drawing, but it would also be okay
-                            // to draw 6 * sprites.len() vertices and use modular arithmetic
-                            // to figure out which sprite we're drawing.
                             rpass.draw(0..6, 0..(sprites.len() as u32));
                         }
                     }
