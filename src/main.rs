@@ -491,10 +491,17 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         //When collided with ASSOCIATE, you're caught!
                         for i in 106..sprites.len() {
                             for (cx, cy, c) in corners.iter() {
+                                if (sprites[i].screen_region[0].floor() == sprites[0].screen_region[0].floor() 
+                                && sprites[i].screen_region[1].floor() == (sprites[0].screen_region[1] ).floor() )|| 
+                                (sprites[i].screen_region[0].floor() == sprites[0].screen_region[0].floor() 
+                                && sprites[i].screen_region[1].floor() == (sprites[0].screen_region[1] + CELL_HEIGHT).floor() )
+                                {
+                                /*
                                 if cx >= &sprites[i].screen_region[0] 
                                 && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
                                 && cy >= &sprites[i].screen_region[1] 
                                 && cy <= &(sprites[i].screen_region[1] + 0.5 * sprites[0].screen_region[3]) {
+                                    */
                                     game_over = true;
                                 }
                             }
