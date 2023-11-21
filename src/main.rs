@@ -227,7 +227,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     });
 
     gpu.surface.configure(&gpu.device, &gpu.config);
-    let path_sprites = Path::new("content/sprites.png");
+    let path_sprites = Path::new("content/sprites-overlay.png");
     let (sprite_tex, _sprite_img) = gpu.load_texture(path_sprites, None)
         .await
         .expect("Couldn't load spritesheet texture");
@@ -338,6 +338,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut prev_t = Instant::now();
     let mut collided_wall = false;
     let mut right = true;
+    let mut at_door = false;
+    let mut aisle_top = false;
+    let mut aisle_bottom = false;
+    let mut aisle_right = false;
+    let mut aisle_left = false;
 
     let path_win = Path::new("content/youWin.png");
 
@@ -375,10 +380,10 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
                 else {
                     // collision sprites
-                    let corners = vec![(sprites[0].screen_region[0], sprites[0].screen_region[1]), 
-                                                        (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1]),
-                                                        (sprites[0].screen_region[0], sprites[0].screen_region[1]+ sprites[0].screen_region[3]),
-                                                        (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1]+ sprites[0].screen_region[3])];
+                    let corners = vec![(sprites[0].screen_region[0], sprites[0].screen_region[1], 0), 
+                                                        (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1], 1),
+                                                        (sprites[0].screen_region[0], sprites[0].screen_region[1]+ sprites[0].screen_region[3], 2),
+                                                        (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1]+ sprites[0].screen_region[3], 3)];
 
 
                     let elapsed = prev_t.elapsed().as_secs_f32();
@@ -397,31 +402,85 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                 }
 
                                 right = !right;
-
-                                /*
-                                if sprites[i].screen_region[0] < WINDOW_WIDTH - CELL_WIDTH{
-                                    sprites[i].screen_region[0] += CELL_WIDTH;
-                                    prev_t = Instant::now();
-                                } else {
-                                    sprites[i].screen_region[0] = 0.0;
-                                }
-                                */
                             }
                         }
                     }
                     
 
-                    //COLLISION LOGIC for with the stationary wall 
+                    //COLLISION LOGIC 
                     for i in 1..sprites.len() {
-                        // if collided with the food items! (sprite[74], sprite[81], sprite[88], sprite[95])
-                        if i == 74 || i== 77 || i == 81 || i == 84 || i == 88 || i == 91 || i == 95 {
-                            for (cx, cy) in corners.iter(){
+                        if  sprites[57].sheet_region[1] == 100.0 {
+                            if sprites[0].screen_region[0] + 5.0 > sprites[57].screen_region[0] 
+                                && sprites[0].screen_region[0] - 5.0 < sprites[57].screen_region[0] 
+                                && sprites[0].screen_region[1] + 2.5 * CELL_HEIGHT >= (sprites[57].screen_region[1])  
+                            {
+                                at_door = true;
+                            }
+                        }
+                        // when collided with a wall
+                        for i in 1..71 {
+                            for (cx, cy, c) in corners.iter() {
                                 if cx >= &sprites[i].screen_region[0] 
                                 && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
                                 && cy >= &sprites[i].screen_region[1] 
                                 && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
-                                    print!("COLLIDED");
                                     collided_wall = true;
+                                }
+                            }
+                        }
+
+                        /*
+                        //when collided with AISLE
+                        for i in 70..98 {
+                            let mut collided_corners : Vec<i8> = vec![];
+                            for (cx, cy, c) in corners.iter() {
+                                if cx >= &sprites[i].screen_region[0] 
+                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
+                                && cy >= &sprites[i].screen_region[1] 
+                                && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
+                                    collided_corners.push(*c);
+                                    print!("HI");
+                                }
+                                
+                                if collided_corners.len() == 2{
+                                    if collided_corners[0] == 0 && collided_corners[1] == 1 {
+                                        aisle_top = true; 
+                                        print!("yo: {:#?}",collided_corners[0]);
+                                    } else if collided_corners[0] == 0 && collided_corners[1] == 2 {
+                                        aisle_left = true; 
+                                        print!("what: {:#?}",collided_corners[0]);
+                                    } else if collided_corners[0] == 1 && collided_corners[1] == 3 {
+                                        aisle_right = true; 
+                                        print!("up: {:#?}",collided_corners[0]);
+                                    } else if collided_corners[0] == 2 && collided_corners[1] == 3 {
+                                        aisle_bottom = true; 
+                                        print!("yay: {:#?}",collided_corners[0]);
+                                    }
+                                }                                
+                            }
+                        }
+                        */
+
+                        //When collided with ASSOCIATE, you're caught!
+                        for i in 106..sprites.len() {
+                            for (cx, cy, c) in corners.iter() {
+                                if cx >= &sprites[i].screen_region[0] 
+                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
+                                && cy >= &sprites[i].screen_region[1] 
+                                && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
+                                    game_over = true;
+                                }
+                            }
+                        }
+
+                        // if collided with the food items! (sprite[74], sprite[81], sprite[88], sprite[95])
+                        if i == 74 || i== 77 || i == 81 || i == 84 || i == 88 || i == 91 || i == 95 {
+                            for (cx, cy, c) in corners.iter(){
+                                if cx >= &sprites[i].screen_region[0] 
+                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
+                                && cy >= &sprites[i].screen_region[1] 
+                                && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
+                                    print!("ITEM");
                                     
                                     //bananas
                                     if i == 74 { sprites[99].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[74].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
@@ -440,11 +499,18 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                 }   
                             }
                         } 
+                        //OPEN DOOR WHEN ALL CHECKED OFF
+                        if sprites[99].sheet_region[1] == 70.0/320.0 && sprites[100].sheet_region[1] == 70.0/320.0 && sprites[101].sheet_region[1] == 70.0/320.0 && sprites[102].sheet_region[1] == 70.0/320.0 && sprites[103].sheet_region[1] == 70.0/320.0 && sprites[104].sheet_region[1] == 70.0/320.0 && sprites[105].sheet_region[1] == 70.0/320.0 {
+                            sprites[57].sheet_region = [0.0, 100.0, 64.0/1408.0, 0.2];
+                        }
                     }
                     
                     // move sprite based on input
-                    sprite_position = sprites::move_sprite_input(&input, sprite_position, collided_wall);
-                    
+                    sprite_position = sprites::move_sprite_input(&input, sprite_position, collided_wall, at_door, aisle_left, aisle_right, aisle_top, aisle_bottom);
+                    aisle_left = false;
+                    aisle_right = false;
+                    aisle_top = false;
+                    aisle_bottom = false;
 
                     // WINNING CONDITION: GOT TO THE DOOR 
                     if sprite_position[1] == WINDOW_HEIGHT - CELL_HEIGHT{
