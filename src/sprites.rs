@@ -30,7 +30,7 @@ pub const door_xvalue: i32 = NUMBER_OF_CELLS_W/3;
 pub fn create_sprites() ->  Vec<GPUSprite> {
     // CUSTOMER (AKA PLAYER)
     let mut sprites: Vec<GPUSprite> = vec![GPUSprite {
-        screen_region: [WINDOW_WIDTH/2.0, 32.0, 50.0, 100.0],
+        screen_region: [8.0*CELL_WIDTH, 2.0 * CELL_HEIGHT, CELL_WIDTH, 2.0 * CELL_HEIGHT],
         sheet_region: [384.0/1408.0, 0.0, 64.0/1408.0, 128.0/320.0], 
     }];
 
@@ -98,7 +98,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             }  
             
             sprites.push(GPUSprite {
-                screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, even_y * CELL_HEIGHT, 50.0, 200.0],
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + even_x * CELL_WIDTH, even_y * CELL_HEIGHT, CELL_WIDTH, 4.0*CELL_HEIGHT],
                 sheet_region: [1280.0/1408.0, 0.0, 64.0/1408.0, 256.0/320.0], 
             });
             sprites.push(GPUSprite {
@@ -110,7 +110,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                 sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], 
             }); //FOOD
             sprites.push(GPUSprite {
-                screen_region: [4.0 * x as f32 * CELL_WIDTH + (even_x - num_a)* CELL_WIDTH, (even_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + (even_x - num_a) * CELL_WIDTH, (even_y + 1.0) * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
                 sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], 
             });
             print!("FOOD: {:#?}", sprites.len());
@@ -123,7 +123,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                 sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], 
             }); //FOOD
             sprites.push(GPUSprite {
-                screen_region: [4.0 * x as f32 * CELL_WIDTH + (even_x + num_b) * CELL_WIDTH, (even_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + (even_x + num_b) * CELL_WIDTH, (even_y + 3.0) * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
                 sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0],
             });
             print!("FOOD: {:#?}", sprites.len());
@@ -134,7 +134,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                 coord1 = 832.0; coord2 = 896.0; coord3 = 0.0; coord4 = 64.0;
             }
             sprites.push(GPUSprite {
-                screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, odd_y * CELL_HEIGHT, 50.0, 200.0],
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + odd_x * CELL_WIDTH, odd_y * CELL_HEIGHT, CELL_WIDTH, 4.0*CELL_HEIGHT],
                 sheet_region: [1280.0/1408.0, 0.0, 64.0/1408.0, 256.0/320.0], 
             });
             sprites.push(GPUSprite {
@@ -146,7 +146,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                 sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], 
             }); 
             sprites.push(GPUSprite {
-                screen_region: [4.0 * x as f32 * CELL_WIDTH + (odd_x - num_a)* CELL_WIDTH, (odd_y + 1.0) * CELL_HEIGHT, 45.0, 45.0],
+                screen_region: [4.0 * x as f32 * CELL_WIDTH + (odd_x - num_a)* CELL_WIDTH, (odd_y + 1.0) * CELL_HEIGHT,  CELL_WIDTH, CELL_HEIGHT],
                 sheet_region: [coord2/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], 
             });
             print!("FOOD: {:#?}", sprites.len());
@@ -160,7 +160,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             }); 
             if x == 1 {
                 sprites.push(GPUSprite {
-                    screen_region: [4.0 * x as f32 * CELL_WIDTH + (odd_x + num_b) * CELL_WIDTH, (odd_y + 3.0) * CELL_HEIGHT, 45.0, 45.0],
+                    screen_region: [4.0 * x as f32 * CELL_WIDTH + (odd_x + num_b) * CELL_WIDTH, (odd_y + 3.0) * CELL_HEIGHT,  CELL_WIDTH, CELL_HEIGHT],
                     sheet_region: [coord4/1408.0, 0.0, 17.0/1408.0, 32.0/320.0], 
                 });
             }
@@ -213,23 +213,23 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
     print!("ASSOC-START: {:#?}", sprites.len());
     // creating enemy ASSOCIATES (sprites 106-111)
     sprites.push(GPUSprite {
-        screen_region: [4.0 * CELL_WIDTH, 14.0 * CELL_HEIGHT, 40.0, 40.0],
+        screen_region: [4.0 * CELL_WIDTH, 14.0 * CELL_HEIGHT,CELL_WIDTH, CELL_HEIGHT],
         sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05],
     });
     sprites.push(GPUSprite {
-        screen_region: [4.0 * CELL_WIDTH, 2.0 * CELL_HEIGHT, 40.0, 40.0],
+        screen_region: [4.0 * CELL_WIDTH, 2.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
         sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], 
     });
     sprites.push(GPUSprite {
-        screen_region: [12.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT, 40.0, 40.0],
+        screen_region: [12.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
         sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], 
     });
     sprites.push(GPUSprite {
-        screen_region: [16.5 * CELL_WIDTH, 2.0 * CELL_HEIGHT, 40.0, 40.0],
+        screen_region: [16.0 * CELL_WIDTH, 2.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
         sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], 
     });
     sprites.push(GPUSprite {
-        screen_region: [16.0 * CELL_WIDTH, 13.0 * CELL_HEIGHT, 40.0, 40.0],
+        screen_region: [16.0 * CELL_WIDTH, 13.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
         sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], 
     });
     
