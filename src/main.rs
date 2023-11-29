@@ -274,6 +274,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     // Initialize sprite position within the grid
     let mut sprite_position: [f32; 2] = [10.0 * CELL_WIDTH, 2.0 * CELL_HEIGHT];  
 
+    let mut sprite_position_2: [f32; 2] = [4.0 * CELL_WIDTH, 14.0 * CELL_HEIGHT];  
+
     const SPRITE_UNIFORM_SIZE: u64 = 512 * mem::size_of::<GPUSprite>() as u64;
     let buffer_sprite = gpu.device.create_buffer(&wgpu::BufferDescriptor {
         label: None,
@@ -415,6 +417,10 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                                         (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1], 1),
                                                         (sprites[0].screen_region[0], sprites[0].screen_region[1]+ sprites[0].screen_region[3], 2),
                                                         (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1]+ sprites[0].screen_region[3], 3)];
+                    let corners2 = vec![(sprites[1].screen_region[0], sprites[1].screen_region[1], 0), 
+                                                        (sprites[1].screen_region[0] + sprites[1].screen_region[2], sprites[1].screen_region[1], 1),
+                                                        (sprites[1].screen_region[0], sprites[1].screen_region[1]+ sprites[1].screen_region[3], 2),
+                                                        (sprites[1].screen_region[0] + sprites[1].screen_region[2], sprites[1].screen_region[1]+ sprites[1].screen_region[3], 3)];
 
 
                     let elapsed = prev_t.elapsed().as_secs_f32();
@@ -452,6 +458,14 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         // when collided with a wall
                         for i in 2..72 {
                             for (cx, cy, c) in corners.iter() {
+                                if cx >= &sprites[i].screen_region[0] 
+                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
+                                && cy >= &sprites[i].screen_region[1] 
+                                && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
+                                    collided_wall = true;
+                                }
+                            }
+                            for (cx, cy, c) in corners2.iter() {
                                 if cx >= &sprites[i].screen_region[0] 
                                 && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
                                 && cy >= &sprites[i].screen_region[1] 
@@ -545,6 +559,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     
                     // move sprite based on input
                     sprite_position = sprites::move_sprite_input(&input, sprite_position, collided_wall, at_door, aisle_left, aisle_right, aisle_top, aisle_bottom);
+                    sprite_position_2 = sprites::move_sprite_input_2(&input, sprite_position_2, collided_wall, at_door, aisle_left, aisle_right, aisle_top, aisle_bottom);
                     if input.is_key_pressed(winit::event::VirtualKeyCode::Space) {
                         game_state.state = 1
                     }
@@ -562,6 +577,10 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     //update sprite position            
                     sprites[0].screen_region[0] = sprite_position[0];
                     sprites[0].screen_region[1] = sprite_position[1];  
+
+                    sprites[1].screen_region[0] = sprite_position_2[0];
+                    sprites[1].screen_region[1] = sprite_position_2[1]; 
+
                 }
                 
                 // Then send the data to the GPU!
