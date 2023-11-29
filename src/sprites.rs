@@ -34,6 +34,12 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
         sheet_region: [384.0/1408.0, 0.0, 64.0/1408.0, 128.0/320.0], 
     }];
 
+    //ASSOCIATE PLAYER - FOR GAME 2
+    sprites.push(GPUSprite {
+        screen_region: [4.0 * CELL_WIDTH, 14.0 * CELL_HEIGHT,CELL_WIDTH, CELL_HEIGHT],
+        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05],
+    });
+
     //WALLS: sprite[0] to sprite[70]!! (sprite = shelf1)
     for y in 0..NUMBER_OF_CELLS_H {
         let y_value = y as f32 * CELL_HEIGHT;
@@ -210,6 +216,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
         sheet_region: [576.0/1408.0, 0.0, 64.0/1408.0, 128.0/320.0], 
     });
 
+    /* GAME 2
     print!("ASSOC-START: {:#?}", sprites.len());
     // creating enemy ASSOCIATES (sprites 106-111)
     sprites.push(GPUSprite {
@@ -234,6 +241,7 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
     });
     
     print!("ASSOC-END: {:#?}", sprites.len());
+    */
     sprites
 
 }
