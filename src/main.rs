@@ -10,6 +10,15 @@ mod sprites;
 use sprites::{GPUCamera, SpriteOption, GPUSprite};
 use std::time::Instant;
 
+struct GameState {
+    /* the different game states possible to match with later
+       0 = Title Screen
+       1 = Gameplay
+       2 = Game Over
+       3 = You Win!
+    */
+    state: usize,
+}
 
 #[cfg(all(not(feature = "uniforms"), not(feature = "vbuf")))]
 const SPRITES: SpriteOption = SpriteOption::Storage;
@@ -33,8 +42,9 @@ pub const CELL_HEIGHT: f32 = WINDOW_HEIGHT / NUMBER_OF_CELLS_H as f32;
 // how fast movable sprites move per sec 
 pub const SPEED: f32 = 0.5;
 
-
 async fn run(event_loop: EventLoop<()>, window: Window) {
+
+    let mut game_state = GameState { state: 0 };
 
     log::info!("Use sprite mode {:?}", SPRITES);
     
@@ -358,10 +368,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     gpu.queue.write_buffer(&buffer_camera, 0, bytemuck::bytes_of(&camera));
     gpu.queue.write_buffer(&buffer_sprite, 0, bytemuck::cast_slice(&sprites));
     let mut input = input::Input::default();
-    let mut show_instructions = true;
     let mut game_over = false; 
-    let mut you_won = false;
-    let mut show_end_screen = false;
     let mut prev_t = Instant::now();
     let mut collided_wall = false;
     let mut right = true;
@@ -398,11 +405,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 if game_over {
                     sprites[0].screen_region[1] -= 5.0;
                     if sprites[0].screen_region[1] < 0.0 {
-                        show_end_screen = true;
+                        game_state.state = 2; 
                     }
-                }
-                else if you_won {
-                    show_end_screen = true;
                 }
 
                 else {
@@ -540,7 +544,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     // move sprite based on input
                     sprite_position = sprites::move_sprite_input(&input, sprite_position, collided_wall, at_door, aisle_left, aisle_right, aisle_top, aisle_bottom);
                     if input.is_key_pressed(winit::event::VirtualKeyCode::Space) {
-                        show_instructions = false;
+                        game_state.state = 1
                     }
                     
                     aisle_left = false;
@@ -550,7 +554,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
                     // WINNING CONDITION: GOT TO THE DOOR 
                     if sprite_position[1] == WINDOW_HEIGHT - CELL_HEIGHT{
-                        you_won = true;
+                        game_state.state = 3;
                     }
 
                     //update sprite position            
@@ -586,56 +590,80 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         })],
                         depth_stencil_attachment: None,
                     });
-                    if show_instructions {
-                        // draw instructions
-                        rpass.set_pipeline(&render_pipeline_full);
-                        rpass.set_bind_group(0, &texture_bind_group_bgnd2, &[]);
-                        rpass.draw(0..6, 0..1);
-                    }
-                    else if show_end_screen{
-                        let tex_end = 
-                        if game_over {
-                            &tex_over
-                        } else {
-                            &tex_win
-                        };
-                        let view_end = tex_end.create_view(&wgpu::TextureViewDescriptor::default());
-                        let sampler_end = gpu.device.create_sampler(&wgpu::SamplerDescriptor::default());
-                            
-                        texture_bind_group_bgnd = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
-                            label: None,
-                            layout: &texture_bind_group_layout,
-                            entries: &[
-                                // One for the texture, one for the sampler
-                                wgpu::BindGroupEntry {
-                                    binding: 0,
-                                    resource: wgpu::BindingResource::TextureView(&view_end),
-                                },
-                                wgpu::BindGroupEntry {
-                                    binding: 1,
-                                    resource: wgpu::BindingResource::Sampler(&sampler_end),
-                                },
-                            ],
-                        });
 
-                        // Draw end game screen
-                        rpass.set_pipeline(&render_pipeline_full);
-                        rpass.set_bind_group(0, &texture_bind_group_bgnd, &[]);
-                        rpass.draw(0..6, 0..1);
-                    } else {
-                        
-                        // Draw space background
-                        rpass.set_pipeline(&render_pipeline_full);
-                        rpass.set_bind_group(0, &texture_bind_group_bgnd, &[]);
-                        rpass.draw(0..6, 0..1);
-                        {
-                            rpass.set_pipeline(&render_pipeline);
-                            if SPRITES == SpriteOption::VertexBuffer {
-                                rpass.set_vertex_buffer(0, buffer_sprite.slice(..));
+                    match game_state.state {
+                        0 => {
+                            // draw instructions
+                            rpass.set_pipeline(&render_pipeline_full);
+                            rpass.set_bind_group(0, &texture_bind_group_bgnd2, &[]);
+                            rpass.draw(0..6, 0..1);
+                        }
+                        2 => {                        
+                            let tex_end = &tex_over;
+                            let view_end = tex_end.create_view(&wgpu::TextureViewDescriptor::default());
+                            let sampler_end = gpu.device.create_sampler(&wgpu::SamplerDescriptor::default());
+                                
+                            texture_bind_group_bgnd = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                                label: None,
+                                layout: &texture_bind_group_layout,
+                                entries: &[
+                                    // One for the texture, one for the sampler
+                                    wgpu::BindGroupEntry {
+                                        binding: 0,
+                                        resource: wgpu::BindingResource::TextureView(&view_end),
+                                    },
+                                    wgpu::BindGroupEntry {
+                                        binding: 1,
+                                        resource: wgpu::BindingResource::Sampler(&sampler_end),
+                                    },
+                                ],
+                            });
+    
+                            // Draw end game screen
+                            rpass.set_pipeline(&render_pipeline_full);
+                            rpass.set_bind_group(0, &texture_bind_group_bgnd, &[]);
+                            rpass.draw(0..6, 0..1);
+                        }
+                        3 => {
+                            let tex_end = &tex_win;
+                            let view_end = tex_end.create_view(&wgpu::TextureViewDescriptor::default());
+                            let sampler_end = gpu.device.create_sampler(&wgpu::SamplerDescriptor::default());
+                                
+                            texture_bind_group_bgnd = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                                label: None,
+                                layout: &texture_bind_group_layout,
+                                entries: &[
+                                    // One for the texture, one for the sampler
+                                    wgpu::BindGroupEntry {
+                                        binding: 0,
+                                        resource: wgpu::BindingResource::TextureView(&view_end),
+                                    },
+                                    wgpu::BindGroupEntry {
+                                        binding: 1,
+                                        resource: wgpu::BindingResource::Sampler(&sampler_end),
+                                    },
+                                ],
+                            });
+    
+                            // Draw end game screen
+                            rpass.set_pipeline(&render_pipeline_full);
+                            rpass.set_bind_group(0, &texture_bind_group_bgnd, &[]);
+                            rpass.draw(0..6, 0..1);
+                        }
+                        _ => {
+                            // Draw space background
+                            rpass.set_pipeline(&render_pipeline_full);
+                            rpass.set_bind_group(0, &texture_bind_group_bgnd, &[]);
+                            rpass.draw(0..6, 0..1);
+                            {
+                                rpass.set_pipeline(&render_pipeline);
+                                if SPRITES == SpriteOption::VertexBuffer {
+                                    rpass.set_vertex_buffer(0, buffer_sprite.slice(..));
+                                }
+                                rpass.set_bind_group(0, &sprite_bind_group, &[]);
+                                rpass.set_bind_group(1, &texture_bind_group, &[]);
+                                rpass.draw(0..6, 0..(sprites.len() as u32));
                             }
-                            rpass.set_bind_group(0, &sprite_bind_group, &[]);
-                            rpass.set_bind_group(1, &texture_bind_group, &[]);
-                            rpass.draw(0..6, 0..(sprites.len() as u32));
                         }
                     }
                 }
