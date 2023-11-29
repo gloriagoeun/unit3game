@@ -371,7 +371,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut game_over = false; 
     let mut prev_t = Instant::now();
     let mut collided_wall = false;
-    //let mut right = true;
+    let mut right = true;
     let mut at_door = false;
     let mut aisle_top = false;
     let mut aisle_bottom = false;
@@ -420,7 +420,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     let elapsed = prev_t.elapsed().as_secs_f32();
 
                     // MOVING
-                    /*
                     for i in 1..sprites.len()  {
                         if sprites[i].sheet_region[0] == 0.54545454545454545454 {
                             if elapsed > SPEED { 
@@ -437,20 +436,20 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             }
                         }
                     }
-                    */
+                    
 
                     //COLLISION LOGIC 
-                    for i in 2..sprites.len() {
-                        if  sprites[58].sheet_region[1] == 100.0 {
-                            if sprites[0].screen_region[0] + 5.0 > sprites[58].screen_region[0] 
-                                && sprites[0].screen_region[0] - 5.0 < sprites[58].screen_region[0] 
-                                && sprites[0].screen_region[1] + 2.5 * CELL_HEIGHT >= (sprites[58].screen_region[1])  
+                    for i in 1..sprites.len() {
+                        if  sprites[57].sheet_region[1] == 100.0 {
+                            if sprites[0].screen_region[0] + 5.0 > sprites[57].screen_region[0] 
+                                && sprites[0].screen_region[0] - 5.0 < sprites[57].screen_region[0] 
+                                && sprites[0].screen_region[1] + 2.5 * CELL_HEIGHT >= (sprites[57].screen_region[1])  
                             {
                                 at_door = true;
                             }
                         }
                         // when collided with a wall
-                        for i in 2..72 {
+                        for i in 1..71 {
                             for (cx, cy, c) in corners.iter() {
                                 if cx >= &sprites[i].screen_region[0] 
                                 && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
@@ -492,7 +491,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             }
                         }
                         */
-                        /*
+
                         //When collided with ASSOCIATE, you're caught!
                         for i in 106..sprites.len() {
                             for (cx, cy, c) in corners.iter() {
@@ -511,35 +510,34 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                 }
                             }
                         }
-                        */
 
                         // if put food item in basket, CHECK it off! (sprite[74], sprite[81], sprite[88], sprite[95])
-                        if i == 75 || i== 78 || i == 82 || i == 85 || i == 89 || i == 92 || i == 96 {
+                        if i == 74 || i== 77 || i == 81 || i == 84 || i == 88 || i == 91 || i == 95 {
                             for (cx, cy, c) in corners.iter(){
                                 if sprites[i].screen_region[0].floor() == sprites[0].screen_region[0].floor() 
                                 && sprites[i].screen_region[1].floor() == (sprites[0].screen_region[1] + CELL_HEIGHT).floor() {
                                     print!("ITEM!");
                                     
                                     //bananas
-                                    if i == 75 { sprites[100].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[75].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    if i == 74 { sprites[99].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[74].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
                                     //carrots
-                                    if i == 78 { sprites[102].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[78].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    if i == 77 { sprites[101].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[77].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
                                     //cereal 
-                                    if i == 89 { sprites[104].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[89].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    if i == 88 { sprites[103].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[88].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
                                     //ketchup
-                                    if i == 92 { sprites[105].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[92].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    if i == 91 { sprites[104].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[91].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
                                     //bread 
-                                    if i == 82 { sprites[101].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[82].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    if i == 81 { sprites[100].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[81].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
                                     //salad
-                                    if i == 85 { sprites[103].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[85].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    if i == 84 { sprites[102].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[84].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
                                     //potato chips
-                                    if i == 96 { sprites[106].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[96].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
+                                    if i == 95 { sprites[105].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[95].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
                                 }   
                             }
                         } 
                         //OPEN DOOR WHEN ALL CHECKED OFF
-                        if sprites[100].sheet_region[1] == 70.0/320.0 && sprites[101].sheet_region[1] == 70.0/320.0 && sprites[102].sheet_region[1] == 70.0/320.0 && sprites[103].sheet_region[1] == 70.0/320.0 && sprites[104].sheet_region[1] == 70.0/320.0 && sprites[105].sheet_region[1] == 70.0/320.0 && sprites[106].sheet_region[1] == 70.0/320.0 {
-                            sprites[58].sheet_region = [0.0, 100.0, 64.0/1408.0, 0.2];
+                        if sprites[99].sheet_region[1] == 70.0/320.0 && sprites[100].sheet_region[1] == 70.0/320.0 && sprites[101].sheet_region[1] == 70.0/320.0 && sprites[102].sheet_region[1] == 70.0/320.0 && sprites[103].sheet_region[1] == 70.0/320.0 && sprites[104].sheet_region[1] == 70.0/320.0 && sprites[105].sheet_region[1] == 70.0/320.0 {
+                            sprites[57].sheet_region = [0.0, 100.0, 64.0/1408.0, 0.2];
                         }
                     }
                     
