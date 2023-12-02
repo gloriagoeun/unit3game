@@ -1,2 +1,5 @@
 # unit3game
-Unit 3 Game made by Josh Yum &amp; Gloria Lee
+Unit 3 Games made by Josh Yum &amp; Gloria Lee, featuring 2 mini games!
+
+game1: The Shoplifter (command to run: cargo run --bin game1)
+game2: ... (command to run: cargo run --bin game2)
