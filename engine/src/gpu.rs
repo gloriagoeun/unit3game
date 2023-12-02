@@ -1,18 +1,5 @@
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum SpriteOption {
-    Storage,
-    Uniform,
-    VertexBuffer,
-}
-
-#[cfg(all(not(feature = "uniforms"), not(feature = "vbuf")))]
-const SPRITES: SpriteOption = SpriteOption::Storage;
-#[cfg(feature = "uniforms")]
-const SPRITES: SpriteOption = SpriteOption::Uniform;
-#[cfg(feature = "vbuf")]
-const SPRITES: SpriteOption = SpriteOption::VertexBuffer;
-#[cfg(all(feature = "vbuf", feature = "uniform"))]
-compile_error!("Can't choose both vbuf and uniform sprite features");
+use crate::sprite::SpriteOption;
+use crate::sprite::SPRITES;
 
 #[allow(dead_code)]
 pub struct WGPU {

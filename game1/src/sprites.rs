@@ -1,30 +1,8 @@
-use bytemuck::{Pod, Zeroable};
 use rand::Rng;
 use crate::{WINDOW_WIDTH, WINDOW_HEIGHT, NUMBER_OF_CELLS_W, NUMBER_OF_CELLS_H, CELL_WIDTH, CELL_HEIGHT};
 use engine::input::Input;
+use engine::sprite::{GPUCamera, GPUSprite}; 
 
-#[repr(C)]
-#[derive(Clone, Copy, Zeroable, Pod)]
-pub struct GPUSprite {
-    pub screen_region: [f32; 4],
-    pub sheet_region: [f32; 4],
-}
-
-#[repr(C)]
-#[derive(Clone, Copy, Zeroable, Pod)]
-pub struct GPUCamera {
-    pub screen_pos: [f32; 2],
-    pub screen_size: [f32; 2],
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum SpriteOption {
-    Storage,
-    Uniform,
-    VertexBuffer,
-}
-
-//value to not hard code the door placement
 pub const door_xvalue: i32 = NUMBER_OF_CELLS_W/3; 
 
 pub fn create_sprites() ->  Vec<GPUSprite> {
@@ -33,14 +11,6 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
         screen_region: [8.0*CELL_WIDTH, 2.0 * CELL_HEIGHT, CELL_WIDTH, 2.0 * CELL_HEIGHT],
         sheet_region: [384.0/1408.0, 0.0, 64.0/1408.0, 128.0/320.0], 
     }];
-    
-    /*
-    //ASSOCIATE PLAYER - FOR GAME 2
-    sprites.push(GPUSprite {
-        screen_region: [4.0 * CELL_WIDTH, 14.0 * CELL_HEIGHT,CELL_WIDTH, CELL_HEIGHT],
-        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05],
-    });
-    */
 
     //WALLS: sprite[0] to sprite[70]!! (sprite = shelf1)
     for y in 0..NUMBER_OF_CELLS_H {
@@ -294,54 +264,3 @@ pub fn move_sprite_input(input: &Input, mut sprite_position: [f32; 2], collided_
         }  
         sprite_position
 }
-
-
-pub fn move_sprite_input_2(input: &Input, mut sprite_position: [f32; 2], collided_wall: bool, at_door: bool, aisle_left: bool, aisle_right: bool, aisle_top:bool, aisle_bottom:bool) -> [f32; 2] {
-        // Update sprite position based on keyboard input
-        if input.is_key_pressed(winit::event::VirtualKeyCode::W) {
-            if aisle_top {
-                sprite_position[1]+=0.0; 
-            }
-            else if at_door {
-                sprite_position[1] += CELL_HEIGHT;
-            }
-            else if collided_wall && sprite_position[1] + 2.0 * CELL_HEIGHT >= WINDOW_HEIGHT {
-                sprite_position[1] = WINDOW_HEIGHT - 2.0 * CELL_HEIGHT;
-            } else {
-                sprite_position[1] += CELL_HEIGHT;
-            }
-        }
-        
-        if input.is_key_pressed(winit::event::VirtualKeyCode::S) {
-            if aisle_bottom {
-                sprite_position[1]+=0.0; 
-            }
-            else if collided_wall && sprite_position[1] - CELL_HEIGHT <= 0.0 {
-                sprite_position[1] = CELL_HEIGHT;
-            } else {
-            sprite_position[1] -= CELL_HEIGHT;
-            }
-        }
-        if input.is_key_pressed(winit::event::VirtualKeyCode::A) {
-            if aisle_left  {
-                sprite_position[0] += 0.0; 
-            }
-            else if collided_wall && sprite_position[0] - 1.5 * CELL_WIDTH <= 0.0 {
-                sprite_position[0] = CELL_WIDTH;
-            } else {
-            sprite_position[0] -= CELL_WIDTH;
-            }
-        }
-        if input.is_key_pressed(winit::event::VirtualKeyCode::D) {
-            if aisle_right{
-                sprite_position[0] += 0.0; 
-            }
-            else if collided_wall && sprite_position[0] + 2.0 * CELL_WIDTH >= WINDOW_WIDTH {
-                sprite_position[0] = WINDOW_WIDTH - 2.0 * CELL_WIDTH;
-            } else {
-                sprite_position[0] += CELL_WIDTH;
-            }
-        }  
-        sprite_position
-}
-

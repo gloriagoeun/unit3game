@@ -8,40 +8,20 @@ use engine;
 use crate::engine::input::Input;
 use engine::gpu::WGPU;
 mod sprites;
-use sprites::{GPUCamera, SpriteOption, GPUSprite};
+use engine::sprite::{GPUCamera, GPUSprite};
 use std::time::Instant;
-
-struct GameState {
-    /* the different game states possible to match with later
-       0 = Title Screen
-       1 = Gameplay
-       2 = Game Over
-       3 = You Win!
-    */
-    state: usize,
-}
-
-#[cfg(all(not(feature = "uniforms"), not(feature = "vbuf")))]
-const SPRITES: SpriteOption = SpriteOption::Storage;
-#[cfg(feature = "uniforms")]
-const SPRITES: SpriteOption = SpriteOption::Uniform;
-#[cfg(feature = "vbuf")]
-const SPRITES: SpriteOption = SpriteOption::VertexBuffer;
-#[cfg(all(feature = "vbuf", feature = "uniform"))]
-compile_error!("Can't choose both vbuf and uniform sprite features");
+use engine::sprite::{SPRITES, SpriteOption}; 
+use engine::gamestate::GameState; 
 
 // get the width and height of the whole game screen
 pub const  WINDOW_WIDTH: f32 = 1024.0;
 pub const  WINDOW_HEIGHT: f32 = 768.0;
-
 pub const NUMBER_OF_CELLS_H: i32 = 16;
 pub const NUMBER_OF_CELLS_W: i32 = 21;
-
 // here divide by a number to create the number of grids
 pub const CELL_WIDTH: f32 = WINDOW_WIDTH / NUMBER_OF_CELLS_W as f32;
 pub const CELL_HEIGHT: f32 = WINDOW_HEIGHT / NUMBER_OF_CELLS_H as f32;
-// how fast movable sprites move per sec 
-pub const SPEED: f32 = 0.5;
+
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
 

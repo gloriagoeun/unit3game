@@ -4,40 +4,19 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use engine;
-use crate::engine::input::Input;
-use engine::gpu::WGPU;
-mod sprites;
-use sprites::{GPUCamera, SpriteOption, GPUSprite};
 use std::time::Instant;
-
-struct GameState {
-    /* the different game states possible to match with later
-       0 = Title Screen
-       1 = Gameplay
-       2 = Game Over
-       3 = You Win!
-    */
-    state: usize,
-}
-
-#[cfg(all(not(feature = "uniforms"), not(feature = "vbuf")))]
-const SPRITES: SpriteOption = SpriteOption::Storage;
-#[cfg(feature = "uniforms")]
-const SPRITES: SpriteOption = SpriteOption::Uniform;
-#[cfg(feature = "vbuf")]
-const SPRITES: SpriteOption = SpriteOption::VertexBuffer;
-#[cfg(all(feature = "vbuf", feature = "uniform"))]
-compile_error!("Can't choose both vbuf and uniform sprite features");
-
+mod sprites;
+use engine;
+use engine::input::Input;
+use engine::gpu::WGPU;
+use engine::sprite::{SPRITES, SpriteOption, GPUCamera, GPUSprite}; 
+use engine::gamestate::GameState; 
 
 // get the width and height of the whole game screen
 pub const  WINDOW_WIDTH: f32 = 1024.0;
 pub const  WINDOW_HEIGHT: f32 = 768.0;
-
 pub const NUMBER_OF_CELLS_H: i32 = 16;
 pub const NUMBER_OF_CELLS_W: i32 = 21;
-
 // here divide by a number to create the number of grids
 pub const CELL_WIDTH: f32 = WINDOW_WIDTH / NUMBER_OF_CELLS_W as f32;
 pub const CELL_HEIGHT: f32 = WINDOW_HEIGHT / NUMBER_OF_CELLS_H as f32;
@@ -461,38 +440,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                 }
                             }
                         }
-
-                        /*
-                        //when collided with AISLE
-                        for i in 70..98 {
-                            let mut collided_corners : Vec<i8> = vec![];
-                            for (cx, cy, c) in corners.iter() {
-                                if cx >= &sprites[i].screen_region[0] 
-                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
-                                && cy >= &sprites[i].screen_region[1] 
-                                && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
-                                    collided_corners.push(*c);
-                                    print!("HI");
-                                }
-                                
-                                if collided_corners.len() == 2{
-                                    if collided_corners[0] == 0 && collided_corners[1] == 1 {
-                                        aisle_top = true; 
-                                        print!("yo: {:#?}",collided_corners[0]);
-                                    } else if collided_corners[0] == 0 && collided_corners[1] == 2 {
-                                        aisle_left = true; 
-                                        print!("what: {:#?}",collided_corners[0]);
-                                    } else if collided_corners[0] == 1 && collided_corners[1] == 3 {
-                                        aisle_right = true; 
-                                        print!("up: {:#?}",collided_corners[0]);
-                                    } else if collided_corners[0] == 2 && collided_corners[1] == 3 {
-                                        aisle_bottom = true; 
-                                        print!("yay: {:#?}",collided_corners[0]);
-                                    }
-                                }                                
-                            }
-                        }
-                        */
 
                         //When collided with ASSOCIATE, you're caught!
                         for i in 106..sprites.len() {

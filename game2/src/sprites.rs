@@ -1,28 +1,7 @@
-use bytemuck::{Pod, Zeroable};
 use rand::Rng;
 use crate::{WINDOW_WIDTH, WINDOW_HEIGHT, NUMBER_OF_CELLS_W, NUMBER_OF_CELLS_H, CELL_WIDTH, CELL_HEIGHT};
 use engine::input::Input;
-
-#[repr(C)]
-#[derive(Clone, Copy, Zeroable, Pod)]
-pub struct GPUSprite {
-    pub screen_region: [f32; 4],
-    pub sheet_region: [f32; 4],
-}
-
-#[repr(C)]
-#[derive(Clone, Copy, Zeroable, Pod)]
-pub struct GPUCamera {
-    pub screen_pos: [f32; 2],
-    pub screen_size: [f32; 2],
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum SpriteOption {
-    Storage,
-    Uniform,
-    VertexBuffer,
-}
+use engine::sprite::{GPUCamera, GPUSprite};
 
 //value to not hard code the door placement
 pub const door_xvalue: i32 = NUMBER_OF_CELLS_W/3; 
@@ -216,32 +195,6 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
         sheet_region: [576.0/1408.0, 0.0, 64.0/1408.0, 128.0/320.0], 
     });
 
-    /* GAME 2
-    print!("ASSOC-START: {:#?}", sprites.len());
-    // creating enemy ASSOCIATES (sprites 106-111)
-    sprites.push(GPUSprite {
-        screen_region: [4.0 * CELL_WIDTH, 14.0 * CELL_HEIGHT,CELL_WIDTH, CELL_HEIGHT],
-        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05],
-    });
-    sprites.push(GPUSprite {
-        screen_region: [4.0 * CELL_WIDTH, 2.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
-        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], 
-    });
-    sprites.push(GPUSprite {
-        screen_region: [12.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
-        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], 
-    });
-    sprites.push(GPUSprite {
-        screen_region: [16.0 * CELL_WIDTH, 2.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
-        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], 
-    });
-    sprites.push(GPUSprite {
-        screen_region: [16.0 * CELL_WIDTH, 13.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
-        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05], 
-    });
-    
-    print!("ASSOC-END: {:#?}", sprites.len());
-    */
     sprites
 
 }
