@@ -1,7 +1,7 @@
 use rand::Rng;
-use crate::{WINDOW_WIDTH, WINDOW_HEIGHT, NUMBER_OF_CELLS_W, NUMBER_OF_CELLS_H, CELL_WIDTH, CELL_HEIGHT};
+use engine::{WINDOW_WIDTH, WINDOW_HEIGHT, NUMBER_OF_CELLS_W, NUMBER_OF_CELLS_H, CELL_WIDTH, CELL_HEIGHT};
 use engine::input::Input;
-use engine::sprite::{GPUCamera, GPUSprite};
+use engine::sprite::GPUSprite;
 
 //value to not hard code the door placement
 pub const door_xvalue: i32 = NUMBER_OF_CELLS_W/3; 

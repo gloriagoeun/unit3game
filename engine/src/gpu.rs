@@ -1,5 +1,6 @@
 use crate::sprite::SpriteOption;
 use crate::sprite::SPRITES;
+use wgpu::BindGroupLayoutEntry;
 
 #[allow(dead_code)]
 pub struct WGPU {
@@ -146,3 +147,18 @@ impl WGPU {
         self.surface.configure(&self.device, &self.config);
     }
 }
+
+pub const CAMERALAYOUT : BindGroupLayoutEntry = wgpu::BindGroupLayoutEntry {
+    // This matches the binding in the shader
+    binding: 0,
+    // Available in vertex shader
+    visibility: wgpu::ShaderStages::VERTEX,
+    // It's a buffer
+    ty: wgpu::BindingType::Buffer {
+        ty: wgpu::BufferBindingType::Uniform,
+        has_dynamic_offset: false,
+        min_binding_size: None,
+    },
+    // No count, not a buffer array binding
+    count: None,
+};

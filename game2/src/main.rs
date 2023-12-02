@@ -4,24 +4,14 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use engine;
-use crate::engine::input::Input;
-use engine::gpu::WGPU;
-mod sprites;
-use engine::sprite::{GPUCamera, GPUSprite};
 use std::time::Instant;
-use engine::sprite::{SPRITES, SpriteOption}; 
+mod sprites;
+use engine;
+use engine::{WINDOW_WIDTH, WINDOW_HEIGHT, NUMBER_OF_CELLS_W, NUMBER_OF_CELLS_H, CELL_WIDTH, CELL_HEIGHT};
+use engine::input::Input;
+use engine::gpu::{WGPU, CAMERALAYOUT};
+use engine::sprite::{GPUCamera, GPUSprite, SPRITES, SpriteOption};
 use engine::gamestate::GameState; 
-
-// get the width and height of the whole game screen
-pub const  WINDOW_WIDTH: f32 = 1024.0;
-pub const  WINDOW_HEIGHT: f32 = 768.0;
-pub const NUMBER_OF_CELLS_H: i32 = 16;
-pub const NUMBER_OF_CELLS_W: i32 = 21;
-// here divide by a number to create the number of grids
-pub const CELL_WIDTH: f32 = WINDOW_WIDTH / NUMBER_OF_CELLS_W as f32;
-pub const CELL_HEIGHT: f32 = WINDOW_HEIGHT / NUMBER_OF_CELLS_H as f32;
-
 
 async fn run(event_loop: EventLoop<()>, window: Window) {
 
@@ -78,27 +68,12 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 },
             ],
         });
-    // The camera binding
-    let camera_layout_entry = wgpu::BindGroupLayoutEntry {
-        // This matches the binding in the shader
-        binding: 0,
-        // Available in vertex shader
-        visibility: wgpu::ShaderStages::VERTEX,
-        // It's a buffer
-        ty: wgpu::BindingType::Buffer {
-            ty: wgpu::BufferBindingType::Uniform,
-            has_dynamic_offset: false,
-            min_binding_size: None,
-        },
-        // No count, not a buffer array binding
-        count: None,
-    };
     let sprite_bind_group_layout = match SPRITES {
         SpriteOption::Storage => {
             gpu.device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 label: None,
                 entries: &[
-                    camera_layout_entry,
+                    CAMERALAYOUT,
                     wgpu::BindGroupLayoutEntry {
                         // This matches the binding in the shader
                         binding: 1,
@@ -120,7 +95,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             gpu.device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 label: None,
                 entries: &[
-                    camera_layout_entry,
+                    CAMERALAYOUT,
                     wgpu::BindGroupLayoutEntry {
                         // This matches the binding in the shader
                         binding: 1,
@@ -141,7 +116,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         SpriteOption::VertexBuffer => {
             gpu.device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 label: None,
-                entries: &[camera_layout_entry],
+                entries: &[CAMERALAYOUT],
             })
         }
     };
@@ -405,26 +380,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
 
                     let elapsed = prev_t.elapsed().as_secs_f32();
-
-                    // MOVING
-                    /*
-                    for i in 1..sprites.len()  {
-                        if sprites[i].sheet_region[0] == 0.54545454545454545454 {
-                            if elapsed > SPEED { 
-                                if right {
-                                    sprites[i].screen_region[0] += 1.0 * CELL_WIDTH;
-                                    prev_t = Instant::now();
-                                }
-                                else {
-                                    sprites[i].screen_region[0] -= 1.0 * CELL_WIDTH;
-                                    prev_t = Instant::now();
-                                }
-
-                                right = !right;
-                            }
-                        }
-                    }
-                    */
 
                     //COLLISION LOGIC 
                     for i in 2..sprites.len() {
