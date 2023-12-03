@@ -4,7 +4,7 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::Window,
 };
-use std::time::Instant;
+use std::time::{Instant, Duration, SystemTime};
 mod sprites;
 use engine;
 use engine::{WINDOW_WIDTH, WINDOW_HEIGHT, NUMBER_OF_CELLS_W, NUMBER_OF_CELLS_H, CELL_WIDTH, CELL_HEIGHT};
@@ -350,6 +350,9 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
         .await
         .expect("Couldn't load game over img");
 
+    // begins timer
+    let mut start = Instant::now();
+
     event_loop.run(move |event, _, control_flow| {
 
         *control_flow = ControlFlow::Wait;
@@ -363,10 +366,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             }
             Event::RedrawRequested(_) => {
                 if game_over {
-                    sprites[0].screen_region[1] -= 5.0;
-                    if sprites[0].screen_region[1] < 0.0 {
-                        game_state.state = 2; 
-                    }
+                    game_state.state = 2
                 }
 
                 else {
@@ -422,6 +422,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     // move sprite based on input
                     sprite_position = sprites::move_sprite_input(&input, sprite_position, collided_wall, at_door, aisle_left, aisle_right, aisle_top, aisle_bottom);
                     sprite_position_2 = sprites::move_sprite_input_2(&input, sprite_position_2, collided_wall, at_door, aisle_left, aisle_right, aisle_top, aisle_bottom);
+
+                    if game_state.state == 0 {
+                        start = Instant::now();
+                    }
+
                     if input.is_key_pressed(winit::event::VirtualKeyCode::Space) {
                         game_state.state = 1
                     }
@@ -442,6 +447,14 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
                     sprites[assoc2].screen_region[0] = sprite_position_2[0];
                     sprites[assoc2].screen_region[1] = sprite_position_2[1]; 
+
+                    if game_state.state == 1 && start.elapsed().as_secs() < 5 {
+                        println!("{}", start.elapsed().as_secs());
+                    }
+                    else if game_state.state == 1 {
+                        game_over = true;
+                        println!("nope");
+                    }
 
                 }
                 
@@ -608,3 +621,4 @@ fn main() {
         wasm_bindgen_futures::spawn_local(run(event_loop, window));
     }
 }
+

@@ -81,15 +81,15 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
     }
     print!("CABBAGE-E: {:#?}", sprites.len());
 
-    //ASSOCIATE PLAYER - FOR GAME 2
+    //ASSOCIATE PLAYER - FOR GAME 2 (red)
     sprites.push(GPUSprite {
         screen_region: [9.0 * CELL_WIDTH, 8.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
         sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05],
     });
-    //ASSOCIATE PLAYER - FOR GAME 2
+    //ASSOCIATE PLAYER - FOR GAME 2 (green)
     sprites.push(GPUSprite {
         screen_region: [10.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
-        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05],
+        sheet_region: [0.54545454545454545454, 0.05, 0.01136364, 0.05],
     });
 
     sprites
