@@ -226,11 +226,13 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     });
 
     let mut sprites: Vec<GPUSprite> = sprites::create_sprites();
+    let assoc1 = sprites.len() - 1; 
+    let assoc2 = sprites.len() - 2; 
 
     // Initialize sprite position within the grid
-    let mut sprite_position: [f32; 2] = [10.0 * CELL_WIDTH, 2.0 * CELL_HEIGHT];  
+    let mut sprite_position: [f32; 2] = [9.0 * CELL_WIDTH, 8.0 * CELL_HEIGHT];  
 
-    let mut sprite_position_2: [f32; 2] = [4.0 * CELL_WIDTH, 14.0 * CELL_HEIGHT];  
+    let mut sprite_position_2: [f32; 2] = [10.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT];  
 
     const SPRITE_UNIFORM_SIZE: u64 = 512 * mem::size_of::<GPUSprite>() as u64;
     let buffer_sprite = gpu.device.create_buffer(&wgpu::BufferDescriptor {
@@ -369,30 +371,22 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
                 else {
                     // collision sprites
-                    let corners = vec![(sprites[0].screen_region[0], sprites[0].screen_region[1], 0), 
-                                                        (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1], 1),
-                                                        (sprites[0].screen_region[0], sprites[0].screen_region[1]+ sprites[0].screen_region[3], 2),
-                                                        (sprites[0].screen_region[0] + sprites[0].screen_region[2], sprites[0].screen_region[1]+ sprites[0].screen_region[3], 3)];
-                    let corners2 = vec![(sprites[1].screen_region[0], sprites[1].screen_region[1], 0), 
-                                                        (sprites[1].screen_region[0] + sprites[1].screen_region[2], sprites[1].screen_region[1], 1),
-                                                        (sprites[1].screen_region[0], sprites[1].screen_region[1]+ sprites[1].screen_region[3], 2),
-                                                        (sprites[1].screen_region[0] + sprites[1].screen_region[2], sprites[1].screen_region[1]+ sprites[1].screen_region[3], 3)];
+                    let corners = vec![(sprites[assoc1].screen_region[0], sprites[assoc1].screen_region[1], 0), 
+                                                        (sprites[assoc1].screen_region[0] + sprites[assoc1].screen_region[2], sprites[assoc1].screen_region[1], 1),
+                                                        (sprites[assoc1].screen_region[0], sprites[assoc1].screen_region[1]+ sprites[assoc1].screen_region[3], 2),
+                                                        (sprites[assoc1].screen_region[0] + sprites[assoc1].screen_region[2], sprites[assoc1].screen_region[1]+ sprites[assoc1].screen_region[3], 3)];
+                    let corners2 = vec![(sprites[assoc2].screen_region[0], sprites[assoc1].screen_region[1], 0), 
+                                                        (sprites[assoc2].screen_region[0] + sprites[assoc2].screen_region[2], sprites[assoc2].screen_region[1], 1),
+                                                        (sprites[assoc2].screen_region[0], sprites[assoc2].screen_region[1]+ sprites[assoc2].screen_region[3], 2),
+                                                        (sprites[assoc2].screen_region[0] + sprites[assoc2].screen_region[2], sprites[assoc2].screen_region[1]+ sprites[assoc2].screen_region[3], 3)];
 
 
                     let elapsed = prev_t.elapsed().as_secs_f32();
-
+                    
                     //COLLISION LOGIC 
-                    for i in 2..sprites.len() {
-                        if  sprites[58].sheet_region[1] == 100.0 {
-                            if sprites[0].screen_region[0] + 5.0 > sprites[58].screen_region[0] 
-                                && sprites[0].screen_region[0] - 5.0 < sprites[58].screen_region[0] 
-                                && sprites[0].screen_region[1] + 2.5 * CELL_HEIGHT >= (sprites[58].screen_region[1])  
-                            {
-                                at_door = true;
-                            }
-                        }
+                    for i in 2..sprites.len() - 2 {
                         // when collided with a wall
-                        for i in 2..72 {
+                        for i in 0..70 {
                             for (cx, cy, c) in corners.iter() {
                                 if cx >= &sprites[i].screen_region[0] 
                                 && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
@@ -411,86 +405,18 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             }
                         }
 
-                        /*
-                        //when collided with AISLE
-                        for i in 70..98 {
-                            let mut collided_corners : Vec<i8> = vec![];
-                            for (cx, cy, c) in corners.iter() {
-                                if cx >= &sprites[i].screen_region[0] 
-                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
-                                && cy >= &sprites[i].screen_region[1] 
-                                && cy <= &(sprites[i].screen_region[1] + sprites[0].screen_region[3]) {
-                                    collided_corners.push(*c);
-                                    print!("HI");
-                                }
-                                
-                                if collided_corners.len() == 2{
-                                    if collided_corners[0] == 0 && collided_corners[1] == 1 {
-                                        aisle_top = true; 
-                                        print!("yo: {:#?}",collided_corners[0]);
-                                    } else if collided_corners[0] == 0 && collided_corners[1] == 2 {
-                                        aisle_left = true; 
-                                        print!("what: {:#?}",collided_corners[0]);
-                                    } else if collided_corners[0] == 1 && collided_corners[1] == 3 {
-                                        aisle_right = true; 
-                                        print!("up: {:#?}",collided_corners[0]);
-                                    } else if collided_corners[0] == 2 && collided_corners[1] == 3 {
-                                        aisle_bottom = true; 
-                                        print!("yay: {:#?}",collided_corners[0]);
-                                    }
-                                }                                
-                            }
+                        //ASSOC1 COLLISION
+                        if sprites[i].screen_region[0].floor() == sprites[assoc1].screen_region[0].floor() 
+                            && sprites[i].screen_region[1].floor() == sprites[assoc1].screen_region[1].floor() {
+                                sprites[i].sheet_region = [0.0, 0.0, 64.0/1408.0, 0.2];
                         }
-                        */
-                        /*
-                        //When collided with ASSOCIATE, you're caught!
-                        for i in 106..sprites.len() {
-                            for (cx, cy, c) in corners.iter() {
-                                if (sprites[i].screen_region[0].floor() == sprites[0].screen_region[0].floor() 
-                                && sprites[i].screen_region[1].floor() == (sprites[0].screen_region[1] ).floor() )|| 
-                                (sprites[i].screen_region[0].floor() == sprites[0].screen_region[0].floor() 
-                                && sprites[i].screen_region[1].floor() == (sprites[0].screen_region[1] + CELL_HEIGHT).floor() )
-                                {
-                                /*
-                                if cx >= &sprites[i].screen_region[0] 
-                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
-                                && cy >= &sprites[i].screen_region[1] 
-                                && cy <= &(sprites[i].screen_region[1] + 0.5 * sprites[0].screen_region[3]) {
-                                    */
-                                    game_over = true;
-                                }
-                            }
-                        }
-                        */
 
-                        // if put food item in basket, CHECK it off! (sprite[74], sprite[81], sprite[88], sprite[95])
-                        if i == 75 || i== 78 || i == 82 || i == 85 || i == 89 || i == 92 || i == 96 {
-                            for (cx, cy, c) in corners.iter(){
-                                if sprites[i].screen_region[0].floor() == sprites[0].screen_region[0].floor() 
-                                && sprites[i].screen_region[1].floor() == (sprites[0].screen_region[1] + CELL_HEIGHT).floor() {
-                                    print!("ITEM!");
-                                    
-                                    //bananas
-                                    if i == 75 { sprites[100].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[75].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
-                                    //carrots
-                                    if i == 78 { sprites[102].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[78].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
-                                    //cereal 
-                                    if i == 89 { sprites[104].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[89].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
-                                    //ketchup
-                                    if i == 92 { sprites[105].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[92].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
-                                    //bread 
-                                    if i == 82 { sprites[101].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[82].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
-                                    //salad
-                                    if i == 85 { sprites[103].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[85].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
-                                    //potato chips
-                                    if i == 96 { sprites[106].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[96].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
-                                }   
-                            }
-                        } 
-                        //OPEN DOOR WHEN ALL CHECKED OFF
-                        if sprites[100].sheet_region[1] == 70.0/320.0 && sprites[101].sheet_region[1] == 70.0/320.0 && sprites[102].sheet_region[1] == 70.0/320.0 && sprites[103].sheet_region[1] == 70.0/320.0 && sprites[104].sheet_region[1] == 70.0/320.0 && sprites[105].sheet_region[1] == 70.0/320.0 && sprites[106].sheet_region[1] == 70.0/320.0 {
-                            sprites[58].sheet_region = [0.0, 100.0, 64.0/1408.0, 0.2];
+                        //ASSOC2 COLLISION 
+                        if sprites[i].screen_region[0].floor() == sprites[assoc2].screen_region[0].floor() 
+                            && sprites[i].screen_region[1].floor() == sprites[assoc2].screen_region[1].floor() {
+                                sprites[i].sheet_region = [960.0/1408.0, 0.0, 64.0/1408.0, 64.0/320.0];
                         }
+
                     }
                     
                     // move sprite based on input
@@ -511,11 +437,11 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     }
 
                     //update sprite position            
-                    sprites[0].screen_region[0] = sprite_position[0];
-                    sprites[0].screen_region[1] = sprite_position[1];  
+                    sprites[assoc1].screen_region[0] = sprite_position[0];
+                    sprites[assoc1].screen_region[1] = sprite_position[1];  
 
-                    sprites[1].screen_region[0] = sprite_position_2[0];
-                    sprites[1].screen_region[1] = sprite_position_2[1]; 
+                    sprites[assoc2].screen_region[0] = sprite_position_2[0];
+                    sprites[assoc2].screen_region[1] = sprite_position_2[1]; 
 
                 }
                 
