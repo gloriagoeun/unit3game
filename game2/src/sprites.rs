@@ -90,16 +90,10 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
 
 }
 
-pub fn move_sprite_input(input: &Input, mut sprite_position: [f32; 2], collided_wall: bool, at_door: bool, aisle_left: bool, aisle_right: bool, aisle_top:bool, aisle_bottom:bool) -> [f32; 2] {
+pub fn move_sprite_input(input: &Input, mut sprite_position: [f32; 2], collided_wall: bool) -> [f32; 2] {
         // Update sprite position based on keyboard input
         if input.is_key_pressed(winit::event::VirtualKeyCode::Up) {
-            if aisle_top {
-                sprite_position[1]+=0.0; 
-            }
-            else if at_door {
-                sprite_position[1] += CELL_HEIGHT;
-            }
-            else if collided_wall && sprite_position[1] + 3.0 * CELL_HEIGHT >= WINDOW_HEIGHT {
+            if collided_wall && sprite_position[1] + 3.0 * CELL_HEIGHT >= WINDOW_HEIGHT {
                 sprite_position[1] = WINDOW_HEIGHT - 2.0 * CELL_HEIGHT;
             } else {
                 sprite_position[1] += CELL_HEIGHT;
@@ -107,30 +101,21 @@ pub fn move_sprite_input(input: &Input, mut sprite_position: [f32; 2], collided_
         }
         
         if input.is_key_pressed(winit::event::VirtualKeyCode::Down) {
-            if aisle_bottom {
-                sprite_position[1]+=0.0; 
-            }
-            else if collided_wall && sprite_position[1] - CELL_HEIGHT <= 0.0 {
+            if collided_wall && sprite_position[1] - CELL_HEIGHT <= 0.0 {
                 sprite_position[1] = CELL_HEIGHT;
             } else {
-            sprite_position[1] -= CELL_HEIGHT;
+                sprite_position[1] -= CELL_HEIGHT;
             }
         }
         if input.is_key_pressed(winit::event::VirtualKeyCode::Left) {
-            if aisle_left  {
-                sprite_position[0] += 0.0; 
-            }
-            else if collided_wall && sprite_position[0] - 1.5 * CELL_WIDTH <= 0.0 {
+            if collided_wall && sprite_position[0] - 1.5 * CELL_WIDTH <= 0.0 {
                 sprite_position[0] = CELL_WIDTH;
             } else {
-            sprite_position[0] -= CELL_WIDTH;
+                sprite_position[0] -= CELL_WIDTH;
             }
         }
         if input.is_key_pressed(winit::event::VirtualKeyCode::Right) {
-            if aisle_right{
-                sprite_position[0] += 0.0; 
-            }
-            else if collided_wall && sprite_position[0] + 2.0 * CELL_WIDTH >= WINDOW_WIDTH {
+            if collided_wall && sprite_position[0] + 2.0 * CELL_WIDTH >= WINDOW_WIDTH {
                 sprite_position[0] = WINDOW_WIDTH - 2.0 * CELL_WIDTH;
             } else {
                 sprite_position[0] += CELL_WIDTH;
@@ -140,16 +125,10 @@ pub fn move_sprite_input(input: &Input, mut sprite_position: [f32; 2], collided_
 }
 
 
-pub fn move_sprite_input_2(input: &Input, mut sprite_position: [f32; 2], collided_wall: bool, at_door: bool, aisle_left: bool, aisle_right: bool, aisle_top:bool, aisle_bottom:bool) -> [f32; 2] {
+pub fn move_sprite_input_2(input: &Input, mut sprite_position: [f32; 2], collided_wall: bool) -> [f32; 2] {
         // Update sprite position based on keyboard input
         if input.is_key_pressed(winit::event::VirtualKeyCode::W) {
-            if aisle_top {
-                sprite_position[1]+=0.0; 
-            }
-            else if at_door {
-                sprite_position[1] += CELL_HEIGHT;
-            }
-            else if collided_wall && sprite_position[1] + 2.0 * CELL_HEIGHT >= WINDOW_HEIGHT {
+            if collided_wall && sprite_position[1] + 2.0 * CELL_HEIGHT >= WINDOW_HEIGHT {
                 sprite_position[1] = WINDOW_HEIGHT - 2.0 * CELL_HEIGHT;
             } else {
                 sprite_position[1] += CELL_HEIGHT;
@@ -157,30 +136,21 @@ pub fn move_sprite_input_2(input: &Input, mut sprite_position: [f32; 2], collide
         }
         
         if input.is_key_pressed(winit::event::VirtualKeyCode::S) {
-            if aisle_bottom {
-                sprite_position[1]+=0.0; 
-            }
-            else if collided_wall && sprite_position[1] - CELL_HEIGHT <= 0.0 {
+            if collided_wall && sprite_position[1] - CELL_HEIGHT <= 0.0 {
                 sprite_position[1] = CELL_HEIGHT;
             } else {
-            sprite_position[1] -= CELL_HEIGHT;
+                sprite_position[1] -= CELL_HEIGHT;
             }
         }
         if input.is_key_pressed(winit::event::VirtualKeyCode::A) {
-            if aisle_left  {
-                sprite_position[0] += 0.0; 
-            }
-            else if collided_wall && sprite_position[0] - 1.5 * CELL_WIDTH <= 0.0 {
+            if collided_wall && sprite_position[0] - 1.5 * CELL_WIDTH <= 0.0 {
                 sprite_position[0] = CELL_WIDTH;
             } else {
-            sprite_position[0] -= CELL_WIDTH;
+                sprite_position[0] -= CELL_WIDTH;
             }
         }
         if input.is_key_pressed(winit::event::VirtualKeyCode::D) {
-            if aisle_right{
-                sprite_position[0] += 0.0; 
-            }
-            else if collided_wall && sprite_position[0] + 2.0 * CELL_WIDTH >= WINDOW_WIDTH {
+            if collided_wall && sprite_position[0] + 2.0 * CELL_WIDTH >= WINDOW_WIDTH {
                 sprite_position[0] = WINDOW_WIDTH - 2.0 * CELL_WIDTH;
             } else {
                 sprite_position[0] += CELL_WIDTH;

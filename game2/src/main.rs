@@ -12,6 +12,7 @@ use engine::input::Input;
 use engine::gpu::{WGPU, CAMERALAYOUT};
 use engine::sprite::{GPUCamera, GPUSprite, SPRITES, SpriteOption};
 use engine::gamestate::GameState; 
+use engine::sound::{winner_sound};
 
 fn score(sprites: Vec<GPUSprite>) -> (i32, i32) {
     let mut bananas : i32 = 0; 
@@ -31,6 +32,7 @@ fn score(sprites: Vec<GPUSprite>) -> (i32, i32) {
 async fn run(event_loop: EventLoop<()>, window: Window) {
 
     let mut game_state = GameState { state: 0 };
+    //engine::sound::sound(); 
 
     log::info!("Use sprite mode {:?}", SPRITES);
     
@@ -348,12 +350,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut tie = false;
     let mut prev_t = Instant::now();
     let mut collided_wall = false;
-    //let mut right = true;
-    let mut at_door = false;
-    let mut aisle_top = false;
-    let mut aisle_bottom = false;
-    let mut aisle_right = false;
-    let mut aisle_left = false;
 
     let path_win = Path::new("content/player2won.png");
     let (tex_win, _win_image) = gpu.load_texture(path_win,None)
@@ -372,6 +368,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
 
     // begins timer
     let mut start = Instant::now();
+    let mut count: i32 = 0; 
 
     event_loop.run(move |event, _, control_flow| {
 
@@ -386,13 +383,37 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
             }
             Event::RedrawRequested(_) => {
                 if player1won {
-                    game_state.state = 2
+                    game_state.state = 2;
+                    if input.is_key_pressed(winit::event::VirtualKeyCode::Space) {
+                        game_state.state = 0;
+                        sprites= sprites::create_sprites();
+                        sprite_position = [9.0 * CELL_WIDTH, 8.0 * CELL_HEIGHT];  
+                        sprite_position_2= [10.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT];  
+                        player1won = false;
+                        count = 0;
+                    }
                 }
                 else if player2won {
-                    game_state.state = 3
+                    game_state.state = 3;
+                    if input.is_key_pressed(winit::event::VirtualKeyCode::Space) {               
+                        game_state.state = 0;
+                        sprites= sprites::create_sprites();
+                        sprite_position = [9.0 * CELL_WIDTH, 8.0 * CELL_HEIGHT];  
+                        sprite_position_2= [10.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT];  
+                        player2won = false;
+                        count = 0;
+                    }
                 }
                 else if tie {
-                    game_state.state = 4
+                    game_state.state = 4;
+                    if input.is_key_pressed(winit::event::VirtualKeyCode::Space) {
+                        game_state.state = 0;
+                        sprites= sprites::create_sprites();
+                        sprite_position = [9.0 * CELL_WIDTH, 8.0 * CELL_HEIGHT];  
+                        sprite_position_2= [10.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT];  
+                        tie = false;
+                        count = 0;
+                    }
                 }
                 else {
                     // collision sprites
@@ -445,8 +466,8 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     }
                     
                     // move sprite based on input
-                    sprite_position = sprites::move_sprite_input(&input, sprite_position, collided_wall, at_door, aisle_left, aisle_right, aisle_top, aisle_bottom);
-                    sprite_position_2 = sprites::move_sprite_input_2(&input, sprite_position_2, collided_wall, at_door, aisle_left, aisle_right, aisle_top, aisle_bottom);
+                    sprite_position = sprites::move_sprite_input(&input, sprite_position, collided_wall);
+                    sprite_position_2 = sprites::move_sprite_input_2(&input, sprite_position_2, collided_wall);
 
                     if game_state.state == 0 {
                         start = Instant::now();
@@ -455,11 +476,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     if input.is_key_pressed(winit::event::VirtualKeyCode::Space) {
                         game_state.state = 1
                     }
-                    
-                    aisle_left = false;
-                    aisle_right = false;
-                    aisle_top = false;
-                    aisle_bottom = false;
 
                     // WINNING CONDITION: GOT TO THE DOOR 
                     if sprite_position[1] == WINDOW_HEIGHT - CELL_HEIGHT{
@@ -473,7 +489,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     sprites[assoc2].screen_region[0] = sprite_position_2[0];
                     sprites[assoc2].screen_region[1] = sprite_position_2[1]; 
 
-                    if game_state.state == 1  && start.elapsed().as_secs() > 15{
+                    if game_state.state == 1  && start.elapsed().as_secs() > 15 {
                         let (bananas, cabbage) = score(sprites.clone()); 
 
                         if bananas > cabbage {
@@ -603,6 +619,26 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                         }
                         _ => {
                             // Draw space background
+                            let tex_end = &tex_bgnd;
+                            let view_end = tex_end.create_view(&wgpu::TextureViewDescriptor::default());
+                            let sampler_end = gpu.device.create_sampler(&wgpu::SamplerDescriptor::default());
+                                
+                            texture_bind_group_bgnd = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                                label: None,
+                                layout: &texture_bind_group_layout,
+                                entries: &[
+                                    // One for the texture, one for the sampler
+                                    wgpu::BindGroupEntry {
+                                        binding: 0,
+                                        resource: wgpu::BindingResource::TextureView(&view_end),
+                                    },
+                                    wgpu::BindGroupEntry {
+                                        binding: 1,
+                                        resource: wgpu::BindingResource::Sampler(&sampler_end),
+                                    },
+                                ],
+                            });
+
                             rpass.set_pipeline(&render_pipeline_full);
                             rpass.set_bind_group(0, &texture_bind_group_bgnd, &[]);
                             rpass.draw(0..6, 0..1);
@@ -617,6 +653,10 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             }
                         }
                     }
+                }
+                if count == 0 && (game_state.state == 2 || game_state.state == 3){
+                    winner_sound();
+                    count += 1; 
                 }
                 gpu.queue.submit(Some(encoder.finish()));
                 frame.present();
@@ -676,4 +716,3 @@ fn main() {
         wasm_bindgen_futures::spawn_local(run(event_loop, window));
     }
 }
-
