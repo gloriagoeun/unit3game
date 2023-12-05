@@ -15,4 +15,4 @@ pollster = "0.3"
 rand = "0.8.5"
 wgpu = "0.17"
 winit = "0.28.6"
-
+kira = "0.8.5"

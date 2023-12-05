@@ -12,6 +12,7 @@ use engine::input::Input;
 use engine::gpu::{WGPU, CAMERALAYOUT};
 use engine::sprite::{SPRITES, SpriteOption, GPUCamera, GPUSprite}; 
 use engine::gamestate::GameState; 
+use engine::sound::{play_sound};
 
 // how fast movable sprites move per sec 
 pub const SPEED: f32 = 0.5;
@@ -428,12 +429,6 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                 (sprites[i].screen_region[0].floor() == sprites[0].screen_region[0].floor() 
                                 && sprites[i].screen_region[1].floor() == (sprites[0].screen_region[1] + CELL_HEIGHT).floor() )
                                 {
-                                /*
-                                if cx >= &sprites[i].screen_region[0] 
-                                && cx <= &(sprites[i].screen_region[0] + sprites[0].screen_region[2]) 
-                                && cy >= &sprites[i].screen_region[1] 
-                                && cy <= &(sprites[i].screen_region[1] + 0.5 * sprites[0].screen_region[3]) {
-                                    */
                                     game_over = true;
                                 }
                             }
@@ -444,8 +439,9 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                             for (cx, cy, c) in corners.iter(){
                                 if sprites[i].screen_region[0].floor() == sprites[0].screen_region[0].floor() 
                                 && sprites[i].screen_region[1].floor() == (sprites[0].screen_region[1] + CELL_HEIGHT).floor() {
-                                    print!("ITEM!");
-                                    
+                                    if sprites[i].sheet_region[1] != 64.0 {
+                                        play_sound();             
+                                    }  
                                     //bananas
                                     if i == 74 { sprites[99].sheet_region = [0.0, 70.0/320.0, 64.0/1408.0, 0.2]; sprites[74].sheet_region = [0.0, 64.0, 64.0/1408.0, 0.2];}
                                     //carrots
