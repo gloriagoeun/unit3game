@@ -13,6 +13,21 @@ use engine::gpu::{WGPU, CAMERALAYOUT};
 use engine::sprite::{GPUCamera, GPUSprite, SPRITES, SpriteOption};
 use engine::gamestate::GameState; 
 
+fn score(sprites: Vec<GPUSprite>) -> (i32, i32) {
+    let mut bananas : i32 = 0; 
+    let mut cabbage : i32 = 0; 
+
+    for i in 69..sprites.len() {
+        if sprites[i].sheet_region[0] == 960.0/1408.0 {
+            cabbage += 1
+        } else if sprites[i].sheet_region[0] == 0.0 {
+            bananas += 1
+        }
+    }
+
+    (bananas, cabbage)
+}
+
 async fn run(event_loop: EventLoop<()>, window: Window) {
 
     let mut game_state = GameState { state: 0 };
@@ -284,7 +299,7 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let sampler_bgnd = gpu.device.create_sampler(&wgpu::SamplerDescriptor::default());
     
     // create title
-    let path_title = Path::new("content/screen-page.png");
+    let path_title = Path::new("content/screen-page-2.png");
     let (tex_title, _over_image) = gpu.load_texture(path_title,None)
         .await
         .expect("Couldn't load space img");
@@ -328,7 +343,9 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     gpu.queue.write_buffer(&buffer_camera, 0, bytemuck::bytes_of(&camera));
     gpu.queue.write_buffer(&buffer_sprite, 0, bytemuck::cast_slice(&sprites));
     let mut input = Input::default();
-    let mut game_over = false; 
+    let mut player1won = false; 
+    let mut player2won = false; 
+    let mut tie = false;
     let mut prev_t = Instant::now();
     let mut collided_wall = false;
     //let mut right = true;
@@ -338,15 +355,18 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
     let mut aisle_right = false;
     let mut aisle_left = false;
 
-    let path_win = Path::new("content/youWin.png");
-
-   //LOAD TEXTURE
+    let path_win = Path::new("content/player2won.png");
     let (tex_win, _win_image) = gpu.load_texture(path_win,None)
         .await
         .expect("Couldn't load game over img");
     
-    let path_over = Path::new("content/gameOver.png");
+    let path_over = Path::new("content/player1won.png");
     let (tex_over, _over_image) = gpu.load_texture(path_over,None)
+        .await
+        .expect("Couldn't load game over img");
+    
+    let path_tie = Path::new("content/tie.png");
+    let (tex_tie, _over_image) = gpu.load_texture(path_tie,None)
         .await
         .expect("Couldn't load game over img");
 
@@ -365,10 +385,15 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                 window.request_redraw();
             }
             Event::RedrawRequested(_) => {
-                if game_over {
+                if player1won {
                     game_state.state = 2
                 }
-
+                else if player2won {
+                    game_state.state = 3
+                }
+                else if tie {
+                    game_state.state = 4
+                }
                 else {
                     // collision sprites
                     let corners = vec![(sprites[assoc1].screen_region[0], sprites[assoc1].screen_region[1], 0), 
@@ -448,14 +473,19 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                     sprites[assoc2].screen_region[0] = sprite_position_2[0];
                     sprites[assoc2].screen_region[1] = sprite_position_2[1]; 
 
-                    if game_state.state == 1 && start.elapsed().as_secs() < 5 {
-                        println!("{}", start.elapsed().as_secs());
-                    }
-                    else if game_state.state == 1 {
-                        game_over = true;
-                        println!("nope");
-                    }
+                    if game_state.state == 1  && start.elapsed().as_secs() > 15{
+                        let (bananas, cabbage) = score(sprites.clone()); 
 
+                        if bananas > cabbage {
+                            player1won = true;
+                        } else if cabbage > bananas {
+                            player2won = true;
+                        } else {
+                            tie = true; 
+                        }
+                        print!("SCORE... BANANAS {:#?}", bananas);
+                        println!(", CABBAGE {:#?}", cabbage);
+                    }
                 }
                 
                 // Then send the data to the GPU!
@@ -541,6 +571,31 @@ async fn run(event_loop: EventLoop<()>, window: Window) {
                                 ],
                             });
     
+                            // Draw end game screen
+                            rpass.set_pipeline(&render_pipeline_full);
+                            rpass.set_bind_group(0, &texture_bind_group_bgnd, &[]);
+                            rpass.draw(0..6, 0..1);
+                        }
+                        4 => {
+                            let tex_end = &tex_tie;
+                            let view_end = tex_end.create_view(&wgpu::TextureViewDescriptor::default());
+                            let sampler_end = gpu.device.create_sampler(&wgpu::SamplerDescriptor::default());
+                                
+                            texture_bind_group_bgnd = gpu.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                                label: None,
+                                layout: &texture_bind_group_layout,
+                                entries: &[
+                                    // One for the texture, one for the sampler
+                                    wgpu::BindGroupEntry {
+                                        binding: 0,
+                                        resource: wgpu::BindingResource::TextureView(&view_end),
+                                    },
+                                    wgpu::BindGroupEntry {
+                                        binding: 1,
+                                        resource: wgpu::BindingResource::Sampler(&sampler_end),
+                                    },
+                                ],
+                            });
                             // Draw end game screen
                             rpass.set_pipeline(&render_pipeline_full);
                             rpass.set_bind_group(0, &texture_bind_group_bgnd, &[]);

@@ -2,6 +2,7 @@ pub mod input;
 pub mod gpu;
 pub mod sprite;
 pub mod gamestate; 
+//pub mod sound;
 
 // get the width and height of the whole game screen
 pub const  WINDOW_WIDTH: f32 = 1024.0;

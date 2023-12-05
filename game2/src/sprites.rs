@@ -10,7 +10,6 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
     // CUSTOMER (AKA PLAYER)
     let mut sprites: Vec<GPUSprite> = vec![];
 
-    print!("WALL-S: {:#?}", sprites.len());
     //WALLS: sprite[0] to sprite[69]!! 
     for y in 0..NUMBER_OF_CELLS_H {
         let y_value = y as f32 * CELL_HEIGHT;
@@ -29,13 +28,12 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
                     sheet_region: [1088.0/1408.0, 0.0, 1.0/1408.0, 1.0/320.0], 
                 });
-            } // empty door (57)
+            } 
             for x in door_xvalue..door_xvalue + 1 {
                 sprites.push(GPUSprite {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
                     sheet_region:  [1088.0/1408.0, 0.0, 1.0/1408.0, 1.0/320.0],
                 });
-                print!("DOOR: {:#?}", sprites.len());
             } for x in door_xvalue+1..NUMBER_OF_CELLS_W {
                 sprites.push(GPUSprite {
                     screen_region: [x as f32 * CELL_WIDTH, y_value, 50.0, 50.0],
@@ -56,8 +54,6 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             });
         }
     }
-    print!("WALL-E: {:#?}", sprites.len());
-
 
     //BANANAS: 70-202
     for x in 1..NUMBER_OF_CELLS_W-1 {
@@ -68,7 +64,6 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             });
         }
     }
-    print!("BANANA-E: {:#?}", sprites.len());
     
     //CABBAGE: 203-335
     for x in 1..NUMBER_OF_CELLS_W-1 {
@@ -79,17 +74,16 @@ pub fn create_sprites() ->  Vec<GPUSprite> {
             });
         }
     }
-    print!("CABBAGE-E: {:#?}", sprites.len());
 
-    //ASSOCIATE PLAYER - FOR GAME 2 (red)
-    sprites.push(GPUSprite {
-        screen_region: [9.0 * CELL_WIDTH, 8.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
-        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05],
-    });
     //ASSOCIATE PLAYER - FOR GAME 2 (green)
     sprites.push(GPUSprite {
-        screen_region: [10.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
+        screen_region: [9.0 * CELL_WIDTH, 8.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
         sheet_region: [0.54545454545454545454, 0.05, 0.01136364, 0.05],
+    });
+    //ASSOCIATE PLAYER - FOR GAME 2 (red)
+    sprites.push(GPUSprite {
+        screen_region: [10.0 * CELL_WIDTH, 7.0 * CELL_HEIGHT, CELL_WIDTH, CELL_HEIGHT],
+        sheet_region: [0.54545454545454545454, 0.0, 0.01136364, 0.05],
     });
 
     sprites
